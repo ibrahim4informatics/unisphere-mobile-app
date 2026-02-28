@@ -1,0 +1,55 @@
+import FormInput from "@/components/ui/FormInput"
+import PrimaryButton from "@/components/ui/PrimaryButton"
+import Spacer from "@/components/ui/Spacer"
+import { useAppDispatch } from "@/hooks/useAppDispatch"
+import useAppSelect from "@/hooks/useAppSelect"
+import { setForgotId, setForgotPasswordEmail } from "@/store/slices/authSlice"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { router } from "expo-router"
+import { Controller, SubmitHandler, useForm } from "react-hook-form"
+import { z } from "zod"
+
+const schema = z.object({
+    email: z.email({ error: ({ input }) => !input ? "Email is required" : "Invalid email" })
+})
+
+
+export type ForgotPasswordFormFields = z.infer<typeof schema>
+
+export default function ForgotPasswordForm() {
+
+    const dispatch = useAppDispatch()
+    const forgotEmail = useAppSelect(state => state.auth.forgot_email)
+    const onSubmit: SubmitHandler<ForgotPasswordFormFields> = async (data) => {
+        return new Promise((resolve) => {
+            console.log(data);
+
+            dispatch(setForgotPasswordEmail(data.email));
+            dispatch(setForgotId("mockid"));
+            router.push("/(auth)/(forgot-password)/verify-otp-screen")
+            setTimeout(() => { resolve(data) }, 1500);
+        })
+
+    }
+    const { control, handleSubmit, formState: { errors, isSubmitting } } = useForm({ resolver: zodResolver(schema), defaultValues: { email: forgotEmail || "" } })
+    return <>
+
+
+        <Controller
+            name="email"
+            control={control}
+            render={({ field: { onBlur, onChange, value } }) => (
+                <FormInput
+                    onChange={onChange} onBlur={onBlur} placeholder="eg:ahmed@univ-oran.edu"
+                    label="Email" error={errors.email?.message} keyboardType="email-address"
+                    required value={value}
+                />
+            )}
+        />
+
+        <Spacer spaceY="md" />
+        <PrimaryButton title="Send Code" onPress={handleSubmit(onSubmit)} loading={isSubmitting} />
+
+
+    </>
+}
