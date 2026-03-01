@@ -1,4 +1,5 @@
-import OtpTextInput from "@/components/ui/OtpTextInput";
+// import OtpTextInput from "@/components/ui/OtpTextInput";
+import OtpInput from "@/components/ui/OtpInputField";
 import PrimaryButton from "@/components/ui/PrimaryButton";
 import SecondaryButton from "@/components/ui/SecondaryButton";
 import Spacer from "@/components/ui/Spacer";
@@ -17,13 +18,13 @@ export type VerifyOtpFormFields = z.infer<typeof shcema>;
 
 
 export default function VerifyOtpForm() {
-    const user_id = useAppSelect(state=>state.auth.forgot_id);
+    const user_id = useAppSelect(state => state.auth.forgot_id);
 
     const { control, formState: { errors, isSubmitting }, handleSubmit } = useForm({ resolver: zodResolver(shcema) });
 
     const onSubmit: SubmitHandler<VerifyOtpFormFields> = async (data) => {
 
-        console.log({...data, user_id});
+        console.log({ ...data, user_id });
         router.replace("/(auth)/(forgot-password)/reset-password-screen")
     }
 
@@ -40,15 +41,17 @@ export default function VerifyOtpForm() {
                 control={control}
                 name="otp_code"
                 render={({ field: { onChange, onBlur, value } }) => (
-                    <OtpTextInput
-                        label="Verification Code"
-                        onChange={onChange}
-                        onBlur={onBlur}
-                        value={value}
-                        pinCount={6}
-                        size="small"
-                        required
-                    />
+                    // <OtpTextInput
+                    //     label="Verification Code"
+                    //     onChange={onChange}
+                    //     onBlur={onBlur}
+                    //     value={value}
+                    //     pinCount={6}
+                    //     size="small"
+                    //     required
+                    // />
+
+                    <OtpInput onChange={onChange} onBlur={onBlur} label="Otp Code" required value={value} error={errors.otp_code?.message} length={6} />
                 )}
             />
             <Text className="text-base text-gray-400 mt-1">Check your email inbox
@@ -63,8 +66,8 @@ export default function VerifyOtpForm() {
             <Spacer spaceY="md" />
 
             <Text className="text-base text-gray-400 my-1">
-                 Didn't receive the code?
-                
+                Didn't receive the code?
+
             </Text>
 
             <SecondaryButton onPress={resendOtpHandler} title="Send Again" />
