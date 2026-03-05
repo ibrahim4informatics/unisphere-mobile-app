@@ -15,14 +15,16 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function ConfirmIdentity() {
 
+
+
     const user_id = useAppSelect(state => state.auth.user?.id);
+    useEffect(() => {
+        if (!user_id) router.replace("/(auth)/(register)");
+    }, [user_id])
+
     const [uploadError, setUploadError] = useState("");
     const { mutateAsync, isPending } = useUploadIdentity();
 
-    useEffect(() => {
-        if (!user_id) router.replace("/(auth)/(register)");
-        console.log(user_id)
-    }, [user_id])
 
 
     const handleUpload = async (file: any) => {
@@ -39,7 +41,7 @@ export default function ConfirmIdentity() {
         }
 
         catch (err: any) {
-            setUploadError("File can't ne uploaded")
+            setUploadError("File can't be uploaded")
         }
 
 
