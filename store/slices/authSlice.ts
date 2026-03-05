@@ -3,27 +3,28 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit"
 
 interface AuthSlice {
     user: User | null
-    access_token: string | null
-    refresh_token: string | null
     is_authenticated: boolean
 
     // login
     login_loading: boolean
     login_error: string | null
 
-    // register (multi-step)
-    register_step: 1 | 2
-    register_role?: "STUDENT" | "TEACHER"
     register_data: {
         email: string,
         password: string,
-        first_name?: string,
-        last_name?: string,
-        role?: "STUDENT" | "TEACHER",
+        first_name: string,
+        last_name: string,
+        role: "STUDENT" | "TEACHER",
+        bio: string | null,
+        student_id: string | null
+    }
+
+    register_errors?: {
+
+        email?: string | null,
         student_id?: string | null
+
     } | null
-    register_loading: boolean
-    register_error: string | null
 
     // forgot password
     forgot_email: string | null,
@@ -33,21 +34,25 @@ interface AuthSlice {
 
 const initialState: AuthSlice = {
     user: null,
-    access_token: null,
-    refresh_token: null,
     is_authenticated: false,
-
+    register_errors: {
+        email: null,
+        student_id: null
+    },
     login_loading: false,
     login_error: null,
-    register_data: null,
-    register_step: 1,
-    register_role: undefined,
-    register_loading: false,
-    register_error: null,
-
+    register_data: {
+        email: "",
+        password: "",
+        first_name: "",
+        last_name: "",
+        role: "STUDENT",
+        bio: null,
+        student_id: null
+    },
     forgot_email: null,
     forgot_id: null,
-    reset_token:null,
+    reset_token: null,
 }
 
 
@@ -56,18 +61,31 @@ const authSlice = createSlice({
     name: "auth",
     initialState,
     reducers: {
-        setAccessToken: (state, { payload: token }: PayloadAction<string>) => {
-            state.access_token = token
-        },
         setRegisterCredentialsData: (state, { payload }: PayloadAction<{
             email: string,
             password: string,
         }>) => {
-            state.register_data = { email: payload.email, password: payload.password }
+            state.register_data = { ...state.register_data, email: payload.email, password: payload.password }
         },
 
-        setRegisterPersonalData: (state, { payload }: PayloadAction<{ first_name: string, last_name: string, role: "STUDENT" | "TEACHER", student_id?: string }>) => {
-            state.register_data = { ...(state.register_data || { email: "", password: "" }), first_name: payload.first_name, last_name: payload.last_name, role: payload.role, student_id: payload.student_id || null }
+        setRegisterErrors: (state, { payload }: PayloadAction<{ email?: string, student_id?: string }>) => {
+            state.register_errors = { ...state.register_errors, email: payload.email || null, student_id: payload.student_id || null };
+        },
+
+        setRegisterPersonalData: (state, { payload }: PayloadAction<{
+            first_name: string;
+            last_name: string;
+            role: "STUDENT" | "TEACHER";
+            bio?: string | undefined;
+            student_id?: string | undefined;
+        }>) => {
+            state.register_data = { ...state.register_data, ...payload }
+        },
+
+
+        clearRegisterData: (state) => {
+            state.register_data = initialState.register_data
+            state.register_errors = initialState.register_errors
         },
 
         setForgotPasswordEmail: (state, { payload }: PayloadAction<string>) => {
@@ -76,13 +94,34 @@ const authSlice = createSlice({
 
         setForgotId: (state, { payload }: PayloadAction<string>) => {
             state.forgot_id = payload
+        },
+
+        setForgotResetToken: (state, { payload }: PayloadAction<string>) => {
+            state.reset_token = payload;
+        },
+        clearForgotResetToken: (state) => {
+            state.reset_token = initialState.reset_token;
+        },
+
+        setUser: (state, { payload }: PayloadAction<User>) => {
+            state.user = payload;
+        },
+
+        clearUser: (state) => {
+            state.user = null;
+        },
+
+        setAuth: (state, { payload }: PayloadAction<boolean>) => {
+            state.is_authenticated = payload;
         }
     }
 })
 
 export default authSlice.reducer
 export const {
-    setAccessToken, setRegisterCredentialsData, setRegisterPersonalData,
-    setForgotPasswordEmail, setForgotId
+    setUser, clearUser,
+    setRegisterCredentialsData, setRegisterPersonalData,
+    setForgotPasswordEmail, setForgotId, setRegisterErrors, clearRegisterData,
+    setForgotResetToken, clearForgotResetToken, setAuth
 
 } = authSlice.actions

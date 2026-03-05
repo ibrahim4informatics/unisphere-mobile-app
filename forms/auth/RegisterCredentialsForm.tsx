@@ -3,7 +3,8 @@ import PasswordInput from "@/components/ui/PasswordInput";
 import PrimaryButton from "@/components/ui/PrimaryButton";
 import Spacer from "@/components/ui/Spacer";
 import { useAppDispatch } from "@/hooks/useAppDispatch";
-import { setRegisterCredentialsData } from "@/store/slices/authSlice";
+import useAppSelect from "@/hooks/useAppSelect";
+import { setRegisterCredentialsData, setRegisterErrors } from "@/store/slices/authSlice";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { router } from "expo-router";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
@@ -22,14 +23,19 @@ export type RegisterCredentials = z.infer<typeof RegisterCredentialsSchema>;
 
 export default function RegisterCredentialsForm() {
     const dispatch = useAppDispatch();
+    const register_errors = useAppSelect(state => state.auth.register_errors);
+    const register_data = useAppSelect(state => state.auth.register_data);
 
-    const { control, handleSubmit, formState: { isSubmitting, errors } } = useForm({ resolver: zodResolver(RegisterCredentialsSchema) })
+    const { control, handleSubmit, formState: { isSubmitting, errors } } = useForm({
+        resolver: zodResolver(RegisterCredentialsSchema), defaultValues: {
+            email: register_data?.email || "", password: register_data?.password || ""
+        }
+    })
 
     const onSubmit: SubmitHandler<RegisterCredentials> = async (data) => {
 
         return new Promise((resolve) => {
             dispatch(setRegisterCredentialsData(data));
-            console.log(data)
             router.push("/(auth)/(register)/register-personal-info")
             setTimeout(() => {
                 resolve(data);
@@ -47,7 +53,10 @@ export default function RegisterCredentialsForm() {
                 control={control}
                 name="email"
                 render={({ field: { onBlur, onChange, value } }) => (
-                    <FormInput required keyboardType="email-address" label="Email" onChange={onChange} onBlur={onBlur} value={value} placeholder="mohamed@mail.edu" error={errors.email?.message} />
+                    <FormInput required keyboardType="email-address" label="Email" onChange={(text) => {
+                        dispatch(setRegisterErrors({ email: undefined }))
+                        onChange(text);
+                    }} onBlur={onBlur} value={value} placeholder="mohamed@mail.edu" error={errors.email?.message || register_errors?.email || undefined} />
                 )}
             />
 

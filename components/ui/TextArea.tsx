@@ -5,6 +5,7 @@ interface Props {
     label: string;
     value: string;
     onChangeText: (text: string) => void;
+    onBlur:()=>void;
     placeholder?: string;
     required?: boolean;
     error?: string;
@@ -16,6 +17,7 @@ export default function TextArea({
     label,
     value,
     onChangeText,
+    onBlur,
     placeholder,
     required = false,
     error,
@@ -45,6 +47,7 @@ export default function TextArea({
                     className="px-5 py-4 text-base min-h-[120px]"
                     value={value}
                     onChangeText={onChangeText}
+                    onBlur={onBlur}
                     maxLength={maxLength}
                 />
             </View>

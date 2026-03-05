@@ -4,10 +4,14 @@ import PrimaryButton from "@/components/ui/PrimaryButton";
 import SecondaryButton from "@/components/ui/SecondaryButton";
 import Spacer from "@/components/ui/Spacer";
 import useAppSelect from "@/hooks/useAppSelect";
+import { verifyOtp } from "@/services/authServices";
+import { setForgotResetToken } from "@/store/slices/authSlice";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { router } from "expo-router";
+import { useEffect } from "react";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import { Text } from "react-native";
+import { useDispatch } from "react-redux";
 import { z } from "zod";
 
 const shcema = z.object({
@@ -18,14 +22,36 @@ export type VerifyOtpFormFields = z.infer<typeof shcema>;
 
 
 export default function VerifyOtpForm() {
-    const user_id = useAppSelect(state => state.auth.forgot_id);
 
-    const { control, formState: { errors, isSubmitting }, handleSubmit } = useForm({ resolver: zodResolver(shcema) });
+    const user_id = useAppSelect(state => state.auth.forgot_id);
+    useEffect(() => {
+        if (!user_id) router.replace("/(auth)/(forgot-password)/verify-otp-screen");
+    }, [user_id])
+    const dispatch = useDispatch();
+
+    const { control, formState: { errors, isSubmitting }, handleSubmit, setError } = useForm({ resolver: zodResolver(shcema) });
 
     const onSubmit: SubmitHandler<VerifyOtpFormFields> = async (data) => {
+        if (!user_id) router.replace("/(auth)/(forgot-password)");
+        else {
 
-        console.log({ ...data, user_id });
-        router.replace("/(auth)/(forgot-password)/reset-password-screen")
+            try {
+                const response = await verifyOtp({ otp_code: data.otp_code, user_id });
+                dispatch(setForgotResetToken(response.data.reset_token));
+                router.replace("/(auth)/(forgot-password)/reset-password-screen")
+            }
+            catch (err: any) {
+
+                if (err.response.status === 400) {
+                    setError("otp_code", { message: "Invalid or expired code" });
+                }
+
+                else {
+                    setError("otp_code", { message: "Check network access or try again" })
+                }
+            }
+
+        }
     }
 
     const resendOtpHandler = () => {

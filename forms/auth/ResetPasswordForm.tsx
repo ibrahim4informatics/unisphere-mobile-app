@@ -1,7 +1,9 @@
 import PasswordInput from "@/components/ui/PasswordInput"
 import PrimaryButton from "@/components/ui/PrimaryButton"
 import Spacer from "@/components/ui/Spacer"
+import { useAppDispatch } from "@/hooks/useAppDispatch"
 import useAppSelect from "@/hooks/useAppSelect"
+import { updatePassword } from "@/services/authServices"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { router } from "expo-router"
 import { Controller, SubmitHandler, useForm } from "react-hook-form"
@@ -22,14 +24,42 @@ export type ResetPasswordFormFields = z.infer<typeof schema>
 
 export default function ResetPasswordForm() {
 
-    // const dispatch = useAppDispatch()
-    const resetToken = useAppSelect(state => state.auth.reset_token);
+    const { control, handleSubmit, formState: { errors, isSubmitting }, setError } = useForm({ resolver: zodResolver(schema) })
+    const dispatch = useAppDispatch();
+    const reset_token = useAppSelect(state => state.auth.reset_token);
     const onSubmit: SubmitHandler<ResetPasswordFormFields> = async (data) => {
-        console.log({ ...data })
-        router.replace("/(auth)/login-screen");
+
+        if (!reset_token) {
+            router.replace("/(auth)/(forgot-password)");
+        }
+
+        else {
+
+            try {
+
+                const response = await updatePassword({ new_password: data.new_password, reset_token });
+                if (response.status === 200) {
+                    router.replace("/(auth)/login-screen");
+                    return
+                }
+            }
+
+            catch (err: any) {
+
+                if (err.response.status === 403) {
+                    router.replace("/(auth)/(forgot-password)");
+                    return;
+                }
+
+                else if (err.response.status === 400) {
+                    setError("new_password", { message: "Invalid Password" })
+                }
+            }
+
+        }
+
     }
 
-    const { control, handleSubmit, formState: { errors, isSubmitting } } = useForm({ resolver: zodResolver(schema) })
     return <>
 
 
@@ -54,7 +84,7 @@ export default function ResetPasswordForm() {
             render={({ field: { onBlur, onChange, value } }) => (
                 <PasswordInput
                     onChange={onChange} onBlur={onBlur} placeholder="* * * * * * * * * *"
-                    label="Confirm" error={errors.confirm?.message} 
+                    label="Confirm" error={errors.confirm?.message}
                     requried value={value}
                 />
             )}

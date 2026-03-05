@@ -1,3 +1,4 @@
+import useAnonymos from "@/hooks/useAnonymos";
 import { Feather } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
@@ -5,6 +6,7 @@ import { Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function WelcomeScreen() {
+  useAnonymos()
   const router = useRouter();
 
   return (

@@ -13,7 +13,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 const LoginScreen = () => {
     const router = useRouter();
-    const [loginType, setLoginType] = useState<"STUDENT" | "TEACHER">("STUDENT");
+    const [role, setRole] = useState<"STUDENT" | "TEACHER">("STUDENT");
     return (
 
         <LinearGradient colors={["#f8fbff", "#eef4ff"]} className="flex-1">
@@ -47,15 +47,15 @@ const LoginScreen = () => {
 
                     <View className="mt-10 bg-gray-100 p-1 rounded-2xl flex-row">
                         <TouchableOpacity
-                            onPress={() => setLoginType("STUDENT")}
+                            onPress={() => setRole("STUDENT")}
                             activeOpacity={0.9}
-                            className={`flex-1 py-3 rounded-xl items-center ${loginType === "STUDENT"
+                            className={`flex-1 py-3 rounded-xl items-center ${role === "STUDENT"
                                 ? "bg-white elevation-sm"
                                 : ""
                                 }`}
                         >
                             <Text
-                                className={`${loginType === "STUDENT"
+                                className={`${role === "STUDENT"
                                     ? "text-blue-600 font-semibold"
                                     : "text-gray-500"
                                     }`}
@@ -65,15 +65,15 @@ const LoginScreen = () => {
                         </TouchableOpacity>
 
                         <TouchableOpacity
-                            onPress={() => setLoginType("TEACHER")}
+                            onPress={() => setRole("TEACHER")}
                             activeOpacity={0.9}
-                            className={`flex-1 py-3 rounded-xl items-center ${loginType === "TEACHER"
+                            className={`flex-1 py-3 rounded-xl items-center ${role === "TEACHER"
                                 ? "bg-white elevation-sm"
                                 : ""
                                 }`}
                         >
                             <Text
-                                className={`${loginType === "TEACHER"
+                                className={`${role === "TEACHER"
                                     ? "text-blue-600 font-semibold"
                                     : "text-gray-500"
                                     }`}
@@ -87,7 +87,7 @@ const LoginScreen = () => {
 
                     <Card>
                         {
-                            loginType === "STUDENT" ? <StudentLoginForm /> : <TeacherLoginForm />
+                            role === "STUDENT" ? <StudentLoginForm /> : <TeacherLoginForm />
                         }
 
                         <Spacer spaceY="md" />

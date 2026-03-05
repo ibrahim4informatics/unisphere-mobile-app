@@ -1,8 +1,12 @@
 import FormInput from "@/components/ui/FormInput";
 import PasswordInput from "@/components/ui/PasswordInput";
 import PrimaryButton from "@/components/ui/PrimaryButton";
+import { useAppDispatch } from "@/hooks/useAppDispatch";
+import { loginUser } from "@/services/authServices";
+import { setAuth } from "@/store/slices/authSlice";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useState } from "react";
+import { router } from "expo-router";
+import * as secureStore from "expo-secure-store";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import {
     View
@@ -30,71 +34,88 @@ export const LoginStudentSchema = z.object({
 export type LoginStudentFields = z.infer<typeof LoginStudentSchema>;
 
 export default function StudentLoginForm() {
+    const dispatch = useAppDispatch();
     const {
         control,
         handleSubmit,
         formState: { isSubmitting, errors },
+        setError,
     } = useForm<LoginStudentFields>({
         resolver: zodResolver(LoginStudentSchema),
     });
 
-    const [showPassword, setShowPassword] = useState(false);
 
     const onSubmit: SubmitHandler<LoginStudentFields> = async (data) => {
-        console.log(data);
-        return new Promise((resolve) =>
-            setTimeout(() => resolve(data), 1500)
-        );
+        try {
+            const loginPromise = loginUser({ password: data.password, role: "STUDENT", student_id: data.student_id });
+
+            const result = await loginPromise;
+            if (result.status === 200) {
+
+                await secureStore.setItemAsync("access_token", result.data.accessToken);
+                await secureStore.setItemAsync("refresh_token", result.data.refreshToken);
+                dispatch(setAuth(true));
+                router.replace("/(app)");
+            }
+
+
+            return loginPromise;
+        }
+
+        catch (err: any) {
+            setError("password", { message: "Invalid ID or password" });
+            setError("student_id", { message: "Invalid ID or password" });
+        }
     };
 
     return (
         <>
-    
-        
 
-                <View className="gap-6">
 
-                    {/* STUDENT ID */}
-                    <Controller
-                        control={control}
-                        name="student_id"
-                        render={({ field: { onBlur, onChange, value } }) => (
-                            <FormInput
-                                keyboardType="number-pad"
-                                maxLength={12}
-                                label="Student ID"
-                                placeholder="ex: 202345698787"
-                                onBlur={onBlur}
-                                error={errors.student_id?.message}
-                                required
-                                onChange={onChange}
-                                value={value}
-                            />
-                        )}
-                    />
 
-                    {/* PASSWORD */}
-                    <Controller
-                        control={control}
-                        name="password"
-                        render={({ field: { onChange, onBlur, value } }) => (
-                            <PasswordInput
-                                placeholder="* * * * * * * * * *"
-                                label="Password"
-                                requried
-                                onChange={onChange}
-                                onBlur={onBlur}
-                                error={errors.password?.message}
-                                value={value}
-                            />
-                        )}
-                    />
-                    
-                    {/* LOGIN BUTTON */}
-                    <PrimaryButton title="Login" onPress={handleSubmit(onSubmit)} loading={isSubmitting}  />
+            <View className="gap-6">
 
-                </View>
-            
+                {/* STUDENT ID */}
+                <Controller
+                    control={control}
+                    name="student_id"
+                    render={({ field: { onBlur, onChange, value } }) => (
+                        <FormInput
+                            keyboardType="number-pad"
+                            maxLength={12}
+                            label="Student ID"
+                            placeholder="ex: 202345698787"
+                            onBlur={onBlur}
+                            error={errors.student_id?.message}
+                            required
+                            onChange={onChange}
+                            value={value}
+                        />
+                    )}
+                />
+
+                {/* PASSWORD */}
+                <Controller
+                    control={control}
+                    name="password"
+                    render={({ field: { onChange, onBlur, value } }) => (
+                        <PasswordInput
+                            placeholder="* * * * * * * * * *"
+                            label="Password"
+                            requried
+                            onChange={onChange}
+                            onBlur={onBlur}
+                            error={errors.password?.message}
+                            value={value}
+                        />
+                    )}
+                />
+
+                {/* LOGIN BUTTON */}
+                <PrimaryButton title="Login" onPress={handleSubmit(onSubmit)} loading={isSubmitting} />
+
+            </View>
+
 
         </>
     );

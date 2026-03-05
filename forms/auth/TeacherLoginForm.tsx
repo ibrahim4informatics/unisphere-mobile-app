@@ -1,8 +1,9 @@
 import FormInput from "@/components/ui/FormInput";
 import PasswordInput from "@/components/ui/PasswordInput";
 import PrimaryButton from "@/components/ui/PrimaryButton";
+import { loginUser } from "@/services/authServices";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useState } from "react";
+import * as secureStore from "expo-secure-store";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import { View } from "react-native";
 import { z } from "zod";
@@ -19,16 +20,31 @@ export type LoginTeacherFields = z.infer<typeof LoginTeachertSchema>;
 
 export default function TeacherLoginForm() {
 
-    const { control, handleSubmit, formState: { isSubmitting, errors } } = useForm({ resolver: zodResolver(LoginTeachertSchema) })
-    const [showPassword, setShowPassword] = useState(false);
+    const { control, handleSubmit, formState: { isSubmitting, errors }, setError } = useForm({ resolver: zodResolver(LoginTeachertSchema) })
 
     const onSubmit: SubmitHandler<LoginTeacherFields> = async (data) => {
-        console.log(data)
-        return new Promise((resolve) => {
-            setTimeout(() => {
-                resolve(data);
-            }, 1500);
-        });
+
+        try {
+            const loginPromise = loginUser({ password: data.password, role: "TEACHER", email: data.email });
+
+            const result = await loginPromise;
+            if (result.status === 200) {
+
+                await secureStore.setItemAsync("access_token", result.data.accessToken);
+                await secureStore.setItemAsync("refresh_token", result.data.refreshToken);
+                alert("Login Success");
+
+            }
+
+
+            return loginPromise;
+        }
+
+        catch (err: any) {
+
+            setError("password", { message: "Invalid Email or password" });
+            setError("email", { message: "Invalid Email or password" });
+        }
 
     }
     return (
@@ -36,50 +52,50 @@ export default function TeacherLoginForm() {
         <>
 
 
-                <View className="gap-6">
+            <View className="gap-6">
 
-                    {/* Email */}
-                    <Controller
-                        control={control}
-                        name="email"
-                        render={({ field: { onBlur, onChange, value } }) => (
-                            <FormInput
-                                keyboardType="email-address"
-                                placeholder="ex: ahmed@email-univ.dz"
-                                onBlur={onBlur}
-                                onChange={onChange}
-                                value={value}
-                                label="Email"
-                                required
-                                error={errors.email?.message}
+                {/* Email */}
+                <Controller
+                    control={control}
+                    name="email"
+                    render={({ field: { onBlur, onChange, value } }) => (
+                        <FormInput
+                            keyboardType="email-address"
+                            placeholder="ex: ahmed@email-univ.dz"
+                            onBlur={onBlur}
+                            onChange={onChange}
+                            value={value}
+                            label="Email"
+                            required
+                            error={errors.email?.message}
 
-                            />
-                        )}
-                    />
+                        />
+                    )}
+                />
 
-                    {/* PASSWORD */}
-                    <Controller
-                        control={control}
-                        name="password"
-                        render={({ field: { onChange, onBlur, value } }) => (
-                            <PasswordInput
-                                placeholder="* * * * * * * * * *"
-                                onChange={onChange}
-                                onBlur={onBlur}
-                                value={value}
-                                label="Password"
-                                requried
-                                error={errors.password?.message}
-                            />
-                        )}
-                    />
+                {/* PASSWORD */}
+                <Controller
+                    control={control}
+                    name="password"
+                    render={({ field: { onChange, onBlur, value } }) => (
+                        <PasswordInput
+                            placeholder="* * * * * * * * * *"
+                            onChange={onChange}
+                            onBlur={onBlur}
+                            value={value}
+                            label="Password"
+                            requried
+                            error={errors.password?.message}
+                        />
+                    )}
+                />
 
-                    
 
-                    {/* LOGIN BUTTON */}
-                    <PrimaryButton title="Login" onPress={handleSubmit(onSubmit)} loading={isSubmitting}  />
 
-                </View>
+                {/* LOGIN BUTTON */}
+                <PrimaryButton title="Login" onPress={handleSubmit(onSubmit)} loading={isSubmitting} />
+
+            </View>
         </>
     )
 }

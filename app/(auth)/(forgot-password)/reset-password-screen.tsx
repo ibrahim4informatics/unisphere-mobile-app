@@ -2,13 +2,21 @@ import Card from "@/components/ui/Card";
 import Spacer from "@/components/ui/Spacer";
 import Colors from "@/constants/Colors";
 import ResetPasswordForm from "@/forms/auth/ResetPasswordForm";
+import useAppSelect from "@/hooks/useAppSelect";
 import { AntDesign } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
+import { useEffect } from "react";
 import { Text, View } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function ResetPasswordScreen() {
+
+    const reset_token = useAppSelect(state=>state.auth.reset_token);
+
+    useEffect(()=>{
+        console.log(reset_token)
+    },[])
     return (
         <LinearGradient colors={["#f8fbff", "#eef4ff"]} className="flex-1">
 

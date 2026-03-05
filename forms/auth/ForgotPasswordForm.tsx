@@ -3,6 +3,7 @@ import PrimaryButton from "@/components/ui/PrimaryButton"
 import Spacer from "@/components/ui/Spacer"
 import { useAppDispatch } from "@/hooks/useAppDispatch"
 import useAppSelect from "@/hooks/useAppSelect"
+import { sendResetPasswordEmail } from "@/services/authServices"
 import { setForgotId, setForgotPasswordEmail } from "@/store/slices/authSlice"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { router } from "expo-router"
@@ -17,21 +18,46 @@ const schema = z.object({
 export type ForgotPasswordFormFields = z.infer<typeof schema>
 
 export default function ForgotPasswordForm() {
+    const forgotEmail = useAppSelect(state => state.auth.forgot_email)
+    const {
+        control, handleSubmit, formState: { errors, isSubmitting }, setError
+    } = useForm({ resolver: zodResolver(schema), defaultValues: { email: forgotEmail || "" } })
+
 
     const dispatch = useAppDispatch()
-    const forgotEmail = useAppSelect(state => state.auth.forgot_email)
     const onSubmit: SubmitHandler<ForgotPasswordFormFields> = async (data) => {
-        return new Promise((resolve) => {
-            console.log(data);
 
-            dispatch(setForgotPasswordEmail(data.email));
-            dispatch(setForgotId("mockid"));
-            router.push("/(auth)/(forgot-password)/verify-otp-screen")
-            setTimeout(() => { resolve(data) }, 1500);
-        })
+        dispatch(setForgotPasswordEmail(data.email));
+        try {
+
+            const response = await sendResetPasswordEmail({ email: data.email });
+            if (response.status === 200) {
+                dispatch(setForgotId(response.data.user_id));
+                router.replace("/(auth)/(forgot-password)/verify-otp-screen");
+            }
+
+        }
+
+        catch (err: any) {
+            console.log(err);
+            if (err.response.status === 400) setError("email", { message: "Email is not valid" });
+            else {
+                setError("email", { message: "Uncaught error try again later" });
+            }
+
+        }
+
+        // return new Promise((resolve) => {
+        //     console.log(data);
+
+        //     dispatch(setForgotPasswordEmail(data.email));
+        //     dispatch(setForgotId("mockid"));
+
+        //     router.push("/(auth)/(forgot-password)/verify-otp-screen")
+        //     setTimeout(() => { resolve(data) }, 1500);
+        // })
 
     }
-    const { control, handleSubmit, formState: { errors, isSubmitting } } = useForm({ resolver: zodResolver(schema), defaultValues: { email: forgotEmail || "" } })
     return <>
 
 

@@ -44,19 +44,12 @@ export default function VerifyOtpScreen() {
 
                     </Text>
 
-
-
-
                     <Card>
-
                         <VerifyOtpForm />
 
                     </Card>
 
-
-
                     <Spacer spaceY="md" />
-
 
 
                 <Link href={"/(auth)/(forgot-password)"}>
