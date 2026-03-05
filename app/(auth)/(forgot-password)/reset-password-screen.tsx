@@ -5,6 +5,7 @@ import ResetPasswordForm from "@/forms/auth/ResetPasswordForm";
 import useAppSelect from "@/hooks/useAppSelect";
 import { AntDesign } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
+import { router } from "expo-router";
 import { useEffect } from "react";
 import { Text, View } from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
@@ -15,8 +16,12 @@ export default function ResetPasswordScreen() {
     const reset_token = useAppSelect(state=>state.auth.reset_token);
 
     useEffect(()=>{
-        console.log(reset_token)
-    },[])
+        if(!reset_token){
+            router.replace("/(auth)/(forgot-password)");
+        }
+    },[]);
+
+    
     return (
         <LinearGradient colors={["#f8fbff", "#eef4ff"]} className="flex-1">
 

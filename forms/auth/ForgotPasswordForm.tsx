@@ -47,15 +47,7 @@ export default function ForgotPasswordForm() {
 
         }
 
-        // return new Promise((resolve) => {
-        //     console.log(data);
 
-        //     dispatch(setForgotPasswordEmail(data.email));
-        //     dispatch(setForgotId("mockid"));
-
-        //     router.push("/(auth)/(forgot-password)/verify-otp-screen")
-        //     setTimeout(() => { resolve(data) }, 1500);
-        // })
 
     }
     return <>
