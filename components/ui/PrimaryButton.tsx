@@ -20,7 +20,7 @@ export default function PrimaryButton({
       onPress={onPress}
       disabled={disabled || loading}
       activeOpacity={0.85}
-      className={`w-full bg-blue-600 rounded-2xl h-14 items-center justify-center disabled:bg-blue-300`}
+      className={`w-full bg-blue-600 rounded-2xl h-16 items-center justify-center disabled:bg-blue-300`}
     >
       {loading ? (
         <ActivityIndicator color="#fff" />

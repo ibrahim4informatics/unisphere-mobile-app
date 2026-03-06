@@ -83,7 +83,7 @@ export default function RegisterPersonalDataForm() {
             if (response.status === 201) {
                 dispatch(clearRegisterData())
                 dispatch(setUser(response.data.user));
-                router.push("/(auth)/(register)/confirm-idendity");
+                router.push("/(auth)/(register)/profile-setup-screen");
             }
             return registerPromise;
         }

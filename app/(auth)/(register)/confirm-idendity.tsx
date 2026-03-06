@@ -92,7 +92,7 @@ export default function ConfirmIdentity() {
                     if (file) {
                         await handleUpload({
                             uri: file.uri,
-                            name: `${user_id}-identity.jpg`,
+                            name: `${user_id}-identity.${file.mimeType?.split("/")[1]}`,
                             type: file.mimeType,
                         });
                     }
