@@ -1,6 +1,9 @@
+import Colors from "@/constants/Colors";
 import { store } from "@/store/store";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { Stack } from "expo-router";
+import { router, Stack } from "expo-router";
+import { StatusBar } from "expo-status-bar";
+import { Text, TouchableOpacity } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { Provider } from "react-redux";
 import "../global.css";
@@ -11,21 +14,34 @@ export default function RootLayout() {
 
 
 
+
   return (
 
 
-    <Provider store={store}>
-      <QueryClientProvider client={queryClient}>
-        <SafeAreaProvider>
-          <Stack screenOptions={{ headerShown: false }} >
+    <>
+      <StatusBar style="dark" />
+      <Provider store={store}>
 
-            <Stack.Screen name="index" />
-            <Stack.Screen name="welcome-screen" />
-            <Stack.Screen name="(auth)" />
-          </Stack>
-        </SafeAreaProvider>
+        <QueryClientProvider client={queryClient}>
+          <SafeAreaProvider >
+            <Stack screenOptions={{ headerShown: false }} >
 
-      </QueryClientProvider>
-    </Provider>
-  )
+              <Stack.Screen name="index" />
+              <Stack.Screen name="welcome-screen" />
+              <Stack.Screen name="(auth)" />
+              <Stack.Screen name="(app)" options={{ headerShown: false }} />
+              <Stack.Screen name="(global)" options={{ headerShown: false }} />
+            </Stack>
+
+
+          </SafeAreaProvider>
+
+        </QueryClientProvider>
+        <TouchableOpacity style={{ position: "absolute", width: 30, height: 30, backgroundColor: Colors.blue[600], borderRadius: 999, bottom: 40, right: 10, justifyContent: "center", alignItems: "center" }} onPress={() => { router.push("/(global)/not-found-screen") }}>
+
+          <Text className="text-white">Dev</Text>
+        </TouchableOpacity>
+      </Provider>
+
+    </>)
 }

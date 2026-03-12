@@ -115,7 +115,7 @@ const UploadProfilePicture = () => {
                             {/* Pick Image Button */}
                             <TouchableOpacity
                                 onPress={async () => {
-                                    const image = await pickImage();
+                                    const image:any = await pickImage();
                                     if (!image) return;
                                     setImage({ uri: image.uri, name: `${user?.id}-${Date.now()}-profile.${image.mimeType?.split("/")[1]}`, type: image.mimeType });
                                 }}

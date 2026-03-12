@@ -14,7 +14,7 @@ const api = axios.create({
 
 // Attach Auth Token Interceptor
 
-axios.interceptors.request.use(
+api.interceptors.request.use(
     async (config) => {
         const token = await secureStore.getItemAsync("access_token");
         config.headers.Authorization = token ? `Bearer ${token}` : null
@@ -25,7 +25,7 @@ axios.interceptors.request.use(
 )
 
 
-axios.interceptors.response.use(
+api.interceptors.response.use(
     (response) => response,
     async (error) => {
         const originalRequest = error.config;
@@ -35,7 +35,7 @@ axios.interceptors.response.use(
             try {
 
                 const refresh_token = await secureStore.getItemAsync("refresh_token");
-                const res = await axios.post(`${process.env.EXPO_PUBLIC_API_URL}/auth/refresh-token`, { refresh_token }, {
+                const res = await axios.post(`${process.env.EXPO_PUBLIC_API_URL}/api/auth/refresh-token`, { refresh_token }, {
                     headers: {
                         "Content-Type": "application/json"
                     }
@@ -48,8 +48,9 @@ axios.interceptors.response.use(
                 }
 
             }
-            catch (refreshError) {
-                await secureStore.deleteItemAsync("refresh_token");
+            catch (refreshError: any) {
+                console.log(JSON.stringify(refreshError))
+                await secureStore.deleteItemAsync("refresh_token")
                 return Promise.reject(refreshError);
             }
         }

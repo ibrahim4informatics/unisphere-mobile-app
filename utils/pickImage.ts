@@ -1,6 +1,6 @@
 import * as ImagePicker from "expo-image-picker";
 
-const pickImage = async () => {
+const pickImage = async (multiple?: boolean) => {
   const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
 
   if (!permission.granted) {
@@ -10,13 +10,18 @@ const pickImage = async () => {
 
   const result = await ImagePicker.launchImageLibraryAsync({
     mediaTypes: "images",
-    allowsMultipleSelection:false,
+    allowsMultipleSelection: multiple || false,
     quality: 1,
   });
 
   if (!result.canceled) {
-    const file = result.assets[0];
-    return file;
+    const files = result.assets;
+    if (multiple) {
+
+      return files;
+    }
+
+    return files[0];
   }
 };
 

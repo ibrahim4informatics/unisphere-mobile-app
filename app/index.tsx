@@ -1,21 +1,31 @@
+import useCurrentProfile from "@/hooks/api/queries/useCurrentProfile";
+import { useAppDispatch } from "@/hooks/useAppDispatch";
+import { setUser } from "@/store/slices/authSlice";
 import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
-import { useRouter } from "expo-router";
+import { router, useRootNavigationState } from "expo-router";
 import { useEffect } from "react";
 import { ActivityIndicator, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import logo from "../assets/images/unisphere-logo.png";
-
 export default function Index() {
-  const router = useRouter();
+  const navigationState = useRootNavigationState();
+  const dispatch = useAppDispatch();
+
+  const { data: response, isPending, error } = useCurrentProfile();
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      router.replace("/welcome-screen"); // better than push
-    }, 2000);
+    // console.log(SecureStore.getItem("refresh_token"))
+    if (!navigationState?.key) return;
+    if (isPending) return;
 
-    return () => clearTimeout(timer);
-  }, []);
+
+    if (response?.data?.profile) {
+      dispatch(setUser(response.data.profile));
+      router.replace("/(app)");
+    } else {
+      router.replace("/(auth)/login-screen");
+    }
+  }, [isPending]);
 
   return (
     <LinearGradient
@@ -28,7 +38,7 @@ export default function Index() {
 
           {/* Logo */}
           <Image
-            source={logo}
+            source={require("../assets/images/unisphere-logo.png")}
             style={{ width: 180, height: 180 }}
             contentFit="contain"
           />

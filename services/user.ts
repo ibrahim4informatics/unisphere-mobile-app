@@ -10,4 +10,7 @@ export const uploadUserAvatar = async (formData: FormData) => {
     return response;
 }
 
-
+export const getCurrentUserProfile = async () => {
+    const response:AxiosResponse<any> = await api.get("/api/user/me");
+    return response;
+}
