@@ -32,7 +32,7 @@ export default function CreatePostField({ onSubmit }: CreatePostProps) {
         data.append("content", content);
         data.append("type", type.toUpperCase());
         medias.forEach(m => {
-            data.append("medias", { uri: m.uri, name: m.fileName, type: m.mimeType } as any)
+            data.append("medias", { uri: m.uri, name: m.fileName || m.name || `untitled.${m.mimeType.split("/")[1]}`, type: m.mimeType } as any)
         })
 
         try {

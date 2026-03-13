@@ -25,7 +25,26 @@ export const createLike = async (post_id: number) => {
 }
 
 export const deleteLike = async (post_id: number) => {
-    const response:AxiosResponse = await api.delete(`/api/likes/${post_id}`);
+    const response: AxiosResponse = await api.delete(`/api/likes/${post_id}`);
     return response;
 }
 
+
+export const deleteMedia = async (media_id: number) => {
+    const response = await api.delete(`/api/posts/post_medias/${media_id}`);
+    return response;
+}
+
+export const updatePost = async (body: { post_id: number, data: FormData }) => {
+    const response = await api.patch(`/api/posts/${body.post_id}`, body.data, {
+        headers: {
+            "Content-Type": "multipart/form-data"
+        }
+    })
+    return response;
+}
+
+export const deletePostById = async (post_id: number) => {
+    const response = await api.delete(`/api/posts/${post_id}`);
+    return response;
+}

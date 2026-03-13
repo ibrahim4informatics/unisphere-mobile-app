@@ -3,15 +3,47 @@ import Post from "@/components/ui/Post";
 import Spacer from "@/components/ui/Spacer";
 import Colors from "@/constants/Colors";
 import useFeedPosts from "@/hooks/api/queries/usePosts";
+import { bookmarkPost, likePost, setPostCounts } from "@/store/slices/postsSlice";
 import { Feather } from "@expo/vector-icons";
 import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
-import { router } from "expo-router";
+import { router, useFocusEffect } from "expo-router";
 import * as secureStore from "expo-secure-store";
+import React, { useEffect } from "react";
 import { ActivityIndicator, Text, TouchableOpacity, View } from "react-native";
 import { KeyboardAwareFlatList } from "react-native-keyboard-aware-scroll-view";
 import { SafeAreaView } from "react-native-safe-area-context";
 export default function HomeScreen() {
+
+    const { data, isPending, error, refetch } = useFeedPosts({ page: 1 })
+
+
+    useFocusEffect(
+        React.useCallback(() => {
+
+            refetch();
+        }, [])
+    )
+
+    useEffect(() => {
+
+        // if(isPending) return;
+
+        if (data?.posts) {
+            data.posts.forEach((p: any) => {
+                setPostCounts({post_id:p.id, booksmarks:p._count.booksmarks, likes:p._count.likes});
+                if(p.is_liked){
+                    likePost(p.id)
+                }
+
+                if(p.is_booked){
+                    bookmarkPost(p.id)
+                }
+            })
+        }
+    }, [data])
+
+
 
     const handleLogout = async () => {
         await secureStore.deleteItemAsync("refresh_token");
@@ -20,7 +52,6 @@ export default function HomeScreen() {
 
     }
 
-    const { data, isPending, error } = useFeedPosts({ page: 1 })
 
     return (
         <LinearGradient

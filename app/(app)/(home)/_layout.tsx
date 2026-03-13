@@ -6,6 +6,7 @@ export default function PostsLayout(){
 
             <Stack.Screen name="index" />
             <Stack.Screen name="[id]" />
+            <Stack.Screen name="update_post/[id]" />
 
         </Stack>
     )

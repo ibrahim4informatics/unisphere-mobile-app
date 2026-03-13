@@ -7,6 +7,10 @@ export const usePostById = (id: number) => {
         ({
             queryKey: ["post", id],
             queryFn: () => getPostById(id),
+            staleTime: 0, // always stale
+            refetchOnWindowFocus: true,
+            refetchOnReconnect: true,
+            refetchOnMount:true
         }
         )
 }
