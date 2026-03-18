@@ -4,6 +4,7 @@ import { setUser } from "@/store/slices/authSlice";
 import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
 import { router, useRootNavigationState } from "expo-router";
+import * as secureStore from "expo-secure-store";
 import { useEffect } from "react";
 import { ActivityIndicator, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -11,21 +12,40 @@ export default function Index() {
   const navigationState = useRootNavigationState();
   const dispatch = useAppDispatch();
 
-  const { data: response, isPending, error } = useCurrentProfile();
+  const clearToken = async () => {
+    await secureStore.deleteItemAsync("refresh_token");
+    await secureStore.deleteItemAsync("access_token");
+  }
+
+  const { data: response, isPending, error, isError } = useCurrentProfile();
 
   useEffect(() => {
     // console.log(SecureStore.getItem("refresh_token"))
+    console.log(isError)
+
     if (!navigationState?.key) return;
     if (isPending) return;
 
+    if (isError) {
 
+      if (error.code === "ERR_NETWORK") {
+        router.replace("/(global)/network-error")
+      }
+
+      else {
+        clearToken();
+        console.log(error.response)
+        router.replace("/(auth)/login-screen")
+      }
+      return;
+    }
     if (response?.data?.profile) {
       dispatch(setUser(response.data.profile));
       router.replace("/(app)");
     } else {
       router.replace("/(auth)/login-screen");
     }
-  }, [isPending]);
+  }, [isPending, error]);
 
   return (
     <LinearGradient

@@ -45,7 +45,7 @@ export default function RootLayout() {
           </SafeAreaProvider>
 
         </QueryClientProvider>
-        <TouchableOpacity style={{ position: "absolute", width: 30, height: 30, backgroundColor: Colors.blue[600], borderRadius: 999, bottom: 40, right: 10, justifyContent: "center", alignItems: "center" }} onPress={() => { router.push("/(app)/(home)/(update_post)/14") }}>
+        <TouchableOpacity style={{ position: "absolute", width: 30, height: 30, backgroundColor: Colors.blue[600], borderRadius: 999, bottom: 40, right: 10, justifyContent: "center", alignItems: "center" }} onPress={() => { router.push("/(global)/network-error") }}>
 
           <Text className="text-white">Dev</Text>
         </TouchableOpacity>

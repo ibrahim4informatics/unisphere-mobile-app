@@ -435,9 +435,12 @@ export default function PostDetailsScreen() {
                     ListHeaderComponent={() => (
                         <>
                             {/* Author */}
-                            < View className="flex-row items-center mt-4">
+                            < View className="flex-row items-start mt-4">
                                 <Image
-                                    source={{ uri: data.post.author.avatar_url }}
+                                    source={data.post.author.avatar_url ?
+                                        { uri: data.post.author.avatar_url }
+                                        : require("@/assets/images/no-avatar.png")
+                                    }
                                     style={{
                                         width: 64, height: 64, borderRadius: 999
                                     }}
@@ -447,10 +450,21 @@ export default function PostDetailsScreen() {
                                         {data.post.author.first_name} {data.post.author.last_name}
                                     </Text>
                                     <Text className="text-gray-500">{
-                                        data.post.author.student_profile ? data.post.author.student_profile.university.name
-                                            : data.post.author.teacher_profile.university.name
+                                        data.post.author.role === "STUDENT" ? data.post.author.student_profile.university.name
+                                            : data.post.author.role === "TEACHER" ? data.post.author.teacher_profile.university.name : null
 
                                     }</Text>
+                                </View>
+
+                                <View className={`rounded-full overflow-hidden shadow-sm
+                                px-4 py-1.5 flex-row items-center gap-1.5 ${data.post.author.role === "STUDENT" ? "bg-green-500" : "bg-blue-500"}
+                                `}>
+
+                                    <Feather name="user" size={12} color="white" />
+
+                                    <Text className="text-white text-xs font-bold tracking-wide uppercase">
+                                        {data.post.author.role}
+                                    </Text>
                                 </View>
                             </View>
 

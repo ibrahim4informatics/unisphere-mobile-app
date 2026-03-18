@@ -7,7 +7,7 @@ import { Feather } from "@expo/vector-icons";
 import { useQueryClient } from "@tanstack/react-query";
 import { Image } from "expo-image";
 import { useState } from "react";
-import { ScrollView, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, ScrollView, Text, TextInput, TouchableOpacity, View } from "react-native";
 import Spacer from "./Spacer";
 
 type CreatePostProps = {
@@ -247,9 +247,9 @@ export default function CreatePostField({ onSubmit }: CreatePostProps) {
                     className={`px-4 py-2 rounded-lg ${(isDisabled || isPending) ? "bg-gray-300" : "bg-blue-500"
                         }`}
                 >
-                    <Text className="text-white font-medium">
+                    {isPending ? <ActivityIndicator color={"#fff"} size={"small"} /> : <Text className="text-white font-medium">
                         Post
-                    </Text>
+                    </Text>}
                 </TouchableOpacity>
 
             </View>

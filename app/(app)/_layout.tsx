@@ -36,6 +36,13 @@ export default function AppLayout() {
                     title: "Home",
                     tabBarIcon: ({ color, focused, size }) => <Feather name="home" size={size} color={color} />
                 }} />
+
+
+                <Tabs.Screen name="(profile)" options={{
+
+                    title: "Profile",
+                    tabBarIcon: ({ color, focused, size }) => <Feather name="user" size={size} color={color} />
+                }} />
             </Tabs>
         </SafeAreaView>
     )

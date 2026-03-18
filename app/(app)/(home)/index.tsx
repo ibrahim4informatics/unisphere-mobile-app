@@ -2,55 +2,66 @@ import CreatePostField from "@/components/ui/CreatePostField";
 import Post from "@/components/ui/Post";
 import Spacer from "@/components/ui/Spacer";
 import Colors from "@/constants/Colors";
+import useCurrentProfile from "@/hooks/api/queries/useCurrentProfile";
 import useFeedPosts from "@/hooks/api/queries/usePosts";
-import { bookmarkPost, likePost, setPostCounts } from "@/store/slices/postsSlice";
+import { useAppDispatch } from "@/hooks/useAppDispatch";
+import { setUser } from "@/store/slices/authSlice";
 import { Feather } from "@expo/vector-icons";
 import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
 import { router, useFocusEffect } from "expo-router";
-import * as secureStore from "expo-secure-store";
-import React, { useEffect } from "react";
+import React, { useCallback } from "react";
 import { ActivityIndicator, Text, TouchableOpacity, View } from "react-native";
 import { KeyboardAwareFlatList } from "react-native-keyboard-aware-scroll-view";
 import { SafeAreaView } from "react-native-safe-area-context";
 export default function HomeScreen() {
 
-    const { data, isPending, error, refetch } = useFeedPosts({ page: 1 })
+    const dispatch = useAppDispatch();
 
+    const { data, isPending, error, refetch } = useFeedPosts({ page: 1 });
+
+    const { data: profileData, isPending: profileLoading, error: profileError, isError: isProfileError } = useCurrentProfile();
 
     useFocusEffect(
         React.useCallback(() => {
 
             refetch();
         }, [])
-    )
+    );
 
-    useEffect(() => {
+    useFocusEffect(useCallback(() => {
 
-        // if(isPending) return;
+        if (profileLoading) return;
 
-        if (data?.posts) {
-            data.posts.forEach((p: any) => {
-                setPostCounts({post_id:p.id, booksmarks:p._count.booksmarks, likes:p._count.likes});
-                if(p.is_liked){
-                    likePost(p.id)
-                }
+        if (isProfileError) {
+            if (profileError.code === "ERR_NETWORK") {
+                router.replace("/(global)/network-error");
+            }
 
-                if(p.is_booked){
-                    bookmarkPost(p.id)
-                }
-            })
+            else {
+                router.replace("/(auth)/login-screen")
+            }
+
+            return;
         }
-    }, [data])
+
+        if(profileData.data?.profile){
+            dispatch(setUser(profileData.data.profile));
+        }
+    }, [profileLoading]))
 
 
+    if (isPending || profileLoading) {
+        return (
+            <View className="flex-1">
+                <ActivityIndicator size={"large"} color={Colors.blue[500]} />
 
-    const handleLogout = async () => {
-        await secureStore.deleteItemAsync("refresh_token");
-        await secureStore.deleteItemAsync("access_token");
-        router.replace("/(auth)/login-screen")
-
+            </View>
+        )
     }
+
+
+
 
 
     return (

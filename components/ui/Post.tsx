@@ -10,7 +10,6 @@ import { Image } from "expo-image";
 import { router } from "expo-router";
 import { useState } from "react";
 import { Linking, ScrollView, Text, TouchableOpacity, View } from "react-native";
-import { useDispatch } from "react-redux";
 import OwnPostActionsModal from "./OwnPostActionsModal";
 import Spacer from "./Spacer";
 
@@ -46,19 +45,8 @@ type PostProps = {
 export default function Post({ post, onPress }: PostProps) {
     const { author, content, postMedias, _count, is_liked, is_booked } = post;
     const user_id = useAppSelect(state => state.auth.user?.id);
-    const dispatch = useDispatch()
 
-    const postMeta = useAppSelect(
-        (state) => state.posts.postsById[post.id]
-    )
 
-    const liked = useAppSelect(
-        (state) => state.posts.likedPostIds.includes(post.id)
-    )
-
-    const bookmarked = useAppSelect(
-        (state) => state.posts.bookmarkedPostIds.includes(post.id)
-    )
     const [ownPostActionsModalShown, setOwnPostActionsModalShown] = useState(false);
     const queryClient = useQueryClient();
     const { mutateAsync: makeLike } = useCreateLike();
@@ -68,33 +56,6 @@ export default function Post({ post, onPress }: PostProps) {
     const { mutateAsync: removeFromBookmark } = useDeleteBookmark();
 
 
-
-
-    // const handleBookmark = async () => {
-    //     try {
-
-    //         if (!bookmarked) {
-
-    //             dispatch(bookmarkPost(post.id))
-    //             await addToBookmark(post.id)
-
-    //         } else {
-
-    //             dispatch(removeBookmark(post.id))
-    //             await removeFromBookmark(post.id)
-
-    //         }
-
-    //     } catch {
-
-    //         if (!bookmarked) {
-    //             dispatch(removeBookmark(post.id))
-    //         } else {
-    //             dispatch(bookmarkPost(post.id))
-    //         }
-
-    //     }
-    // }
 
     const handleBookmark = async () => {
 
@@ -195,6 +156,7 @@ export default function Post({ post, onPress }: PostProps) {
     };
 
     const handleShowOwnPostActionsModal = () => {
+        if(user_id !== post.author.id) return
         setOwnPostActionsModalShown(true);
 
     }
