@@ -94,71 +94,6 @@ export default function PostDetailsScreen() {
 
         }
     }
-
-
-    // const handleBookmark = async () => {
-    //     if (!data?.post) return
-
-    //     const postId = data.post.id
-
-    //     try {
-
-    //         if (!bookmarked) {
-
-    //             dispatch(bookmarkPost(postId))
-    //             await addToBookmark(postId)
-
-    //         } else {
-
-    //             dispatch(removeBookmark(postId))
-    //             await removeFromBookmark(postId)
-
-    //         }
-
-    //     } catch {
-
-    //         if (!bookmarked) {
-    //             dispatch(removeBookmark(postId))
-    //         } else {
-    //             dispatch(bookmarkPost(postId))
-    //         }
-
-    //     }
-    // }
-
-
-    // const handleLike = async () => {
-    //     if (!data?.post) return
-
-    //     const postId = data.post.id
-
-    //     try {
-
-    //         if (!liked) {
-
-    //             dispatch(likePost(postId)) // optimistic
-    //             await makeLike(postId)
-
-    //         } else {
-
-    //             dispatch(unlikePost(postId)) // optimistic
-    //             await unLike(postId)
-
-    //         }
-
-    //     } catch {
-
-    //         // rollback if API fails
-    //         if (!liked) {
-    //             dispatch(unlikePost(postId))
-    //         } else {
-    //             dispatch(likePost(postId))
-    //         }
-
-    //     }
-    // }
-
-
     const handleBookmark = async () => {
         try {
 
@@ -220,6 +155,10 @@ export default function PostDetailsScreen() {
 
             }
 
+            queryClient.invalidateQueries({ exact: false, queryKey: ["my-posts"] });
+            queryClient.invalidateQueries({ exact: false, queryKey: ["profile"] });
+
+
         } catch {
 
             if (!bookmarked) {
@@ -229,10 +168,6 @@ export default function PostDetailsScreen() {
             }
 
         }
-
-        finally {
-            refetch()
-        }
     }
 
 
@@ -240,6 +175,10 @@ export default function PostDetailsScreen() {
 
         const previousPosts = queryClient.getQueriesData({ queryKey: ["posts"] });
         const previousPost = queryClient.getQueryData(["posts", data.post.id]);
+        queryClient.invalidateQueries({
+
+            queryKey: ["my-posts"]
+        });
 
         try {
 
@@ -334,17 +273,12 @@ export default function PostDetailsScreen() {
                     };
                 });
 
-                console.log("pp")
 
                 // server request
                 await unLike(data.post.id);
             }
 
-
-
-
-
-
+            queryClient.invalidateQueries({ exact: false, queryKey: ["my-posts"] });
 
         } catch {
 

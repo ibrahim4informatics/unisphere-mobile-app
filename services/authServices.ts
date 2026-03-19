@@ -52,3 +52,8 @@ export const uploadIdentityCard = async (formData: FormData) => {
     return response;
 }
 
+
+export const logoutUser = async (refresh_token: string) => {
+    const response = await api.post("/api/auth/logout", { refresh_token });
+    return response.data;
+}

@@ -11,6 +11,18 @@ export const uploadUserAvatar = async (formData: FormData) => {
 }
 
 export const getCurrentUserProfile = async () => {
-    const response:AxiosResponse<any> = await api.get("/api/user/me");
+    const response: AxiosResponse<any> = await api.get("/api/user/me");
     return response;
+}
+
+
+export const updateEmail = async (new_email: string) => {
+    const response = await api.patch("/api/user/email", { new_email });
+    return response.data
+}
+
+export const updatePassword = async (data: { current_password: string, new_password: string }) => {
+
+    const response = await api.patch("/api/user/password", data);
+    return response.data;
 }

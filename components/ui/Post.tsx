@@ -97,6 +97,10 @@ export default function Post({ post, onPress }: PostProps) {
                 await removeFromBookmark(post.id);
             }
 
+            queryClient.invalidateQueries({ exact: false, queryKey: ["my-posts"] });
+            queryClient.invalidateQueries({ exact: false, queryKey: ["profile"] });
+
+
         } catch {
 
             // rollback
@@ -138,12 +142,17 @@ export default function Post({ post, onPress }: PostProps) {
                 }
             );
 
+
+
+
             // server request
             if (!post.is_liked) {
                 await makeLike(post.id);
             } else {
                 await unLike(post.id);
             }
+            queryClient.invalidateQueries({ exact: false, queryKey: ["my-posts"] });
+
 
         } catch (err) {
 
@@ -156,7 +165,7 @@ export default function Post({ post, onPress }: PostProps) {
     };
 
     const handleShowOwnPostActionsModal = () => {
-        if(user_id !== post.author.id) return
+        if (user_id !== post.author.id) return
         setOwnPostActionsModalShown(true);
 
     }

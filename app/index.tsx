@@ -20,9 +20,6 @@ export default function Index() {
   const { data: response, isPending, error, isError } = useCurrentProfile();
 
   useEffect(() => {
-    // console.log(SecureStore.getItem("refresh_token"))
-    console.log(isError)
-
     if (!navigationState?.key) return;
     if (isPending) return;
 
@@ -34,7 +31,6 @@ export default function Index() {
 
       else {
         clearToken();
-        console.log(error.response)
         router.replace("/(auth)/login-screen")
       }
       return;

@@ -37,7 +37,6 @@ export default function CreateStudentProfile() {
             || !profileData.field_id || !profileData.level_id || !profileData.university_id
         ) { 
             
-            console.log(user_id)
             return }
         try {
 

@@ -10,11 +10,8 @@ import { useState } from "react";
 import { ActivityIndicator, ScrollView, Text, TextInput, TouchableOpacity, View } from "react-native";
 import Spacer from "./Spacer";
 
-type CreatePostProps = {
-    onSubmit: (data: { type: "question" | "resource"; content: string }) => void;
-};
 
-export default function CreatePostField({ onSubmit }: CreatePostProps) {
+export default function CreatePostField() {
     const queryClient = useQueryClient();
     const user = useAppSelect(state => state.auth.user);
     const [type, setType] = useState<"question" | "resource">("question");
@@ -25,7 +22,6 @@ export default function CreatePostField({ onSubmit }: CreatePostProps) {
     const isDisabled = !content.trim();
 
     const handleSubmit = async () => {
-        // console.log(user)
         if (isDisabled) return;
 
         const data = new FormData();
@@ -38,7 +34,9 @@ export default function CreatePostField({ onSubmit }: CreatePostProps) {
         try {
 
             await mutateAsync(data);
-            queryClient.invalidateQueries({ exact: false, queryKey: ["posts"] })
+            queryClient.invalidateQueries({ exact: false, queryKey: ["posts"] });
+            queryClient.invalidateQueries({ exact: false, queryKey: ["profile"] });
+            queryClient.invalidateQueries({ exact: false, queryKey: ["my-posts"] });
             setContent("");
             setMedias([]);
             setType("question")

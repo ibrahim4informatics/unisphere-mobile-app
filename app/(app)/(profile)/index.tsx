@@ -1,9 +1,14 @@
 import Post from "@/components/ui/Post";
 import ProfileHeader from "@/components/ui/ProfileHeader";
+import Colors from "@/constants/Colors";
+import useCurrentProfile from "@/hooks/api/queries/useCurrentProfile";
+import useMyPosts from "@/hooks/api/queries/useMyPosts";
 import { Feather } from "@expo/vector-icons";
 import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
-import { TouchableOpacity, View } from "react-native";
+import { router, useFocusEffect } from "expo-router";
+import { useCallback } from "react";
+import { ActivityIndicator, TouchableOpacity, View } from "react-native";
 import { KeyboardAwareFlatList } from "react-native-keyboard-aware-scroll-view";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -726,6 +731,29 @@ const user = {
 }
 
 export default function UserProfileScreen() {
+
+    const { isPending: loadingProfile, error: profileResponseError, data: profileData } = useCurrentProfile();
+
+
+    const { data: postsResponse, isPending: postsAreLoading, error: postsError, fetchNextPage, isFetchingNextPage, hasNextPage } = useMyPosts();
+
+    useFocusEffect(useCallback(() => {
+        if (profileResponseError?.code === "ERR_NETWORK") {
+            router.replace("/(global)/network-error");
+            return;
+        }
+
+    }, [loadingProfile]));
+
+
+
+    if (loadingProfile) {
+        return (
+            <View className="flex-1 items-center justify-center">
+                <ActivityIndicator size={"large"} color={Colors.blue[500]} />
+            </View>
+        )
+    }
     return (
         <LinearGradient colors={["#f8fbff", "#eef4ff"]}
             className="flex-1">
@@ -773,12 +801,30 @@ export default function UserProfileScreen() {
 
                     showsVerticalScrollIndicator={false}
 
-                    ListHeaderComponent={() => <ProfileHeader user={user} />}
-                    data={data.posts}
+                    ListHeaderComponent={() => <ProfileHeader user={profileData?.data.profile} />}
+                    data={postsResponse?.pages.flatMap(page => page.posts)}
                     keyExtractor={(item) => item.id}
                     renderItem={({ item }) => <Post post={item} />}
 
+                    ListFooterComponent={() => (
+                         isFetchingNextPage && <View className="mt-1"><ActivityIndicator size={"small"} color={Colors.blue[500]} /></View>
+
+                    )}
+                onEndReached={async () => {
+
+                    if (!isFetchingNextPage && hasNextPage) {
+
+                        try {
+                            await fetchNextPage()
+                        }
+                        catch (err) {
+                            console.log(err)
+                        }
+                    }
+                }}
+
                 />
+
 
 
             </SafeAreaView>

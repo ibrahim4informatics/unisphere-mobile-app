@@ -53,7 +53,7 @@ export default function HomeScreen() {
 
     if (isPending || profileLoading) {
         return (
-            <View className="flex-1">
+            <View className="flex-1 items-center justify-center">
                 <ActivityIndicator size={"large"} color={Colors.blue[500]} />
 
             </View>
@@ -133,11 +133,11 @@ export default function HomeScreen() {
 
                                 <Spacer spaceY="md" />
 
-                                <CreatePostField onSubmit={() => { }} />
+                                <CreatePostField />
                             </>
                         )}
 
-                        renderItem={({ index, item }) => (<Post onPress={() => { console.log(item.id) }} post={item} />)}
+                        renderItem={({ index, item }) => (<Post onPress={() => { router.push(`/(app)/(home)/${item.id}?back=home`) }} post={item} />)}
                     />
                 )}
             </SafeAreaView>

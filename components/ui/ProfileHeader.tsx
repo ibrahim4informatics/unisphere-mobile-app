@@ -1,6 +1,7 @@
 import Colors from "@/constants/Colors";
 import { Feather } from "@expo/vector-icons";
 import { Image } from "expo-image";
+import { router } from "expo-router";
 import { Text, TouchableOpacity, View } from "react-native";
 
 
@@ -12,6 +13,9 @@ type Props = {
         bio: string,
         avatar_url?: string | null,
         role: string,
+        _count: {
+            [key: string]: number
+        }
     }
 }
 
@@ -23,7 +27,7 @@ export default function ProfileHeader({ user }: Props) {
             <View className="flex-row items-start py-6 px-2">
 
                 {/* Avatar */}
-                <View className="p-[2px] rounded-full bg-blue-500">
+                <View className="p-[2px] rounded-full bg-gray-200">
                     <Image
                         source={user?.avatar_url ? { uri: user?.avatar_url } : require("@/assets/images/no-avatar.png")}
                         style={{
@@ -58,6 +62,9 @@ export default function ProfileHeader({ user }: Props) {
                 {/* Settings */}
                 <TouchableOpacity
                     className="bg-gray-100 p-3 rounded-xl active:opacity-70 shadow-sm elevation-md"
+                    onPress={() => {
+                        router.push("/settings-screen");
+                    }}
                 >
                     <Feather name="settings" size={20} color={Colors.gray[700]} />
                 </TouchableOpacity>
@@ -71,7 +78,7 @@ export default function ProfileHeader({ user }: Props) {
                 {/* POSTS */}
                 <View className="flex-1 bg-white border border-gray-200 rounded-2xl p-5 items-center justify-center shadow-sm">
                     <Text className="text-3xl font-extrabold ">
-                        45
+                        {user._count.posts}
                     </Text>
                     <Text className="text-gray-400 text-xs mt-1 uppercase tracking-wide">
                         Posts
@@ -81,7 +88,7 @@ export default function ProfileHeader({ user }: Props) {
                 {/* BOOKMARKS */}
                 <View className="flex-1 bg-white border border-gray-200 rounded-2xl p-5 items-center justify-center shadow-sm">
                     <Text className="text-3xl font-extrabold ">
-                        12
+                        {user._count.bookmarks}
                     </Text>
                     <Text className="text-gray-400 text-xs mt-1 uppercase tracking-wide">
                         Bookmarks
@@ -91,7 +98,7 @@ export default function ProfileHeader({ user }: Props) {
                 {/* CONNECTIONS */}
                 <View className="flex-1 bg-white border border-gray-200 rounded-2xl p-5 items-center justify-center shadow-sm">
                     <Text className="text-3xl font-extrabold">
-                        300
+                        {user._count.connections}
                     </Text>
                     <Text className="text-gray-400 text-xs mt-1 uppercase tracking-wide">
                         Connections

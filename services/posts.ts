@@ -48,3 +48,9 @@ export const deletePostById = async (post_id: number) => {
     const response = await api.delete(`/api/posts/${post_id}`);
     return response;
 }
+
+
+export const getOwnPosts = async (params: { page: number }) => {
+    const response = await api.get("/api/posts/me", { params });
+    return response.data;
+}
