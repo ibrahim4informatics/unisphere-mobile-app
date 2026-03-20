@@ -9,3 +9,7 @@ export const createStudentProfile = async (data: CreateStudentProfileData) => {
 }
 
 
+export const getAcademicStudentProfile = async () => {
+    const response: AxiosResponse = await api.get("/api/student/academic-profile")
+    return response.data;
+}

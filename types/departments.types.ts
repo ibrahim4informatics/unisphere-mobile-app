@@ -1,7 +1,7 @@
 export type GetDepartmentsParams = {
     university_id?: string ;
     name?: string;
-    faculty_id?: string ;
+    faculty_id?: number ;
 }
 
 export type Department = {

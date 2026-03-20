@@ -1,6 +1,8 @@
 import UITabs from "@/components/ui/UITabs";
 import Colors from "@/constants/Colors";
+import UpdateStudentProfile from "@/forms/profile/UpdateStudentProfile";
 import { Feather } from "@expo/vector-icons";
+import { useQueryClient } from "@tanstack/react-query";
 import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
 import { Text, TouchableOpacity, View } from "react-native";
@@ -14,6 +16,9 @@ const schema = z.object({
 type FormFields = z.infer<typeof schema>;
 
 export default function EditProfile() {
+
+    const queryClient = useQueryClient();
+    const user_role = (queryClient.getQueryData(["profile"]) as any).data.profile.role;
 
 
 
@@ -37,16 +42,28 @@ export default function EditProfile() {
                 </View>
 
                 <UITabs
-                
-                    tabs={[{key:"personal", label:"Personal Informations"}, {key:"academic", label:"Academic Informations"}]}
-                    renderContent={(activeTab)=>{
 
-                        if(activeTab === "personal"){
+                    tabs={[{ key: "personal", label: "Personal Informations" }, { key: "academic", label: "Academic Informations" }]}
+                    renderContent={(activeTab) => {
+
+                        if (activeTab === "personal") {
                             return <Text>Personal</Text>
                         }
 
-                        else if(activeTab === "academic"){
-                            return <Text>Academic</Text>
+                        else if (activeTab === "academic") {
+
+                            if (user_role === "STUDENT") {
+                                return <UpdateStudentProfile />
+                            }
+
+
+                            else {
+                                return (
+                                    <View>
+                                        <Text>Update teacher academic Informations</Text>
+                                    </View>
+                                )
+                            }
                         }
                     }}
                 />
