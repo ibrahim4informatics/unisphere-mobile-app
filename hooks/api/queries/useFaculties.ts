@@ -9,7 +9,7 @@ const useFaculties = (params: GetFacultiesParams) => {
     return useQuery<GetFacultiesResponse, Error>({
         queryKey: ["faculties", JSON.stringify(params)],
         queryFn: () => getFaculties(params),
-        // staleTime: 1000 * 60 * 60
+        staleTime: 0
     });
 }
 

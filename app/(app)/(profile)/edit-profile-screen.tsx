@@ -1,11 +1,14 @@
 import UITabs from "@/components/ui/UITabs";
 import Colors from "@/constants/Colors";
+import UpdateAvatar from "@/forms/profile/UpdateAvatar";
 import UpdateStudentProfile from "@/forms/profile/UpdateStudentProfile";
+import UpdateUser from "@/forms/profile/UpdateUser";
+import useAcademicUserProfile from "@/hooks/api/queries/useAcademicUserProfile";
 import { Feather } from "@expo/vector-icons";
 import { useQueryClient } from "@tanstack/react-query";
 import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
-import { Text, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { z } from "zod";
 
@@ -19,6 +22,8 @@ export default function EditProfile() {
 
     const queryClient = useQueryClient();
     const user_role = (queryClient.getQueryData(["profile"]) as any).data.profile.role;
+    const { data: academicProfileResponse, isPending: academicProfileLoading, error: academicProfileError } = useAcademicUserProfile();
+
 
 
 
@@ -47,13 +52,38 @@ export default function EditProfile() {
                     renderContent={(activeTab) => {
 
                         if (activeTab === "personal") {
-                            return <Text>Personal</Text>
+                            return (
+                                <>
+
+                                <UpdateAvatar avatar_url="https://res.cloudinary.com/djn33vea9/image/upload/v1773237788/users/2818001c-7f2b-4ecc-a763-85a2c863450b/profile_pictures/uutvlbrtwrlvvnugnomp.jpg" />
+
+                                    <UpdateUser first_name="Benyahia" last_name="Ibrahim" />
+                                </>
+                            )
                         }
 
                         else if (activeTab === "academic") {
 
                             if (user_role === "STUDENT") {
-                                return <UpdateStudentProfile />
+
+                                if (academicProfileLoading) {
+                                    return <View className="flex-1 items-center justify-center">
+                                        <ActivityIndicator size={"large"} color={Colors.blue[500]} />
+                                    </View>
+                                }
+
+                                else {
+                                    return (
+                                        <UpdateStudentProfile
+                                            university_id={academicProfileResponse?.profile.univeristy_id!}
+                                            faculty_id={academicProfileResponse?.profile.faculty_id!}
+                                            department_id={academicProfileResponse?.profile.department_id!}
+                                            field_id={academicProfileResponse?.profile.field_id!}
+                                            level_id={academicProfileResponse?.profile.level_id!}
+
+                                        />
+                                    )
+                                }
                             }
 
 
