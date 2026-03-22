@@ -1,9 +1,9 @@
 import UITabs from "@/components/ui/UITabs";
 import Colors from "@/constants/Colors";
-import UpdateAvatar from "@/forms/profile/UpdateAvatar";
 import UpdateStudentProfile from "@/forms/profile/UpdateStudentProfile";
 import UpdateUser from "@/forms/profile/UpdateUser";
 import useAcademicUserProfile from "@/hooks/api/queries/useAcademicUserProfile";
+import useCurrentProfile from "@/hooks/api/queries/useCurrentProfile";
 import { Feather } from "@expo/vector-icons";
 import { useQueryClient } from "@tanstack/react-query";
 import { LinearGradient } from "expo-linear-gradient";
@@ -23,6 +23,7 @@ export default function EditProfile() {
     const queryClient = useQueryClient();
     const user_role = (queryClient.getQueryData(["profile"]) as any).data.profile.role;
     const { data: academicProfileResponse, isPending: academicProfileLoading, error: academicProfileError } = useAcademicUserProfile();
+    const { data: currentUserProfile, isPending: currentUserProfileLoading, error: currentUserProfileError } = useCurrentProfile();
 
 
 
@@ -52,14 +53,16 @@ export default function EditProfile() {
                     renderContent={(activeTab) => {
 
                         if (activeTab === "personal") {
-                            return (
-                                <>
 
-                                <UpdateAvatar avatar_url="https://res.cloudinary.com/djn33vea9/image/upload/v1773237788/users/2818001c-7f2b-4ecc-a763-85a2c863450b/profile_pictures/uutvlbrtwrlvvnugnomp.jpg" />
+                            if (currentUserProfileLoading) {
+                                return (<View className="flex-1 items-center justify-center"><ActivityIndicator size={"large"} color={Colors.blue[500]} /></View>)
+                            }
 
-                                    <UpdateUser first_name="Benyahia" last_name="Ibrahim" />
-                                </>
-                            )
+                            else {
+                                return (
+                                    <UpdateUser first_name={currentUserProfile?.data.profile.first_name} last_name={currentUserProfile?.data.profile.last_name} bio={currentUserProfile?.data.profile.bio} avatar_url={currentUserProfile?.data.profile.avatar_url} />
+                                )
+                            }
                         }
 
                         else if (activeTab === "academic") {

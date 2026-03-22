@@ -3,6 +3,7 @@ import PasswordInput from "@/components/ui/PasswordInput";
 import PrimaryButton from "@/components/ui/PrimaryButton";
 import { loginUser } from "@/services/authServices";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { router } from "expo-router";
 import * as secureStore from "expo-secure-store";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import { View } from "react-native";
@@ -32,7 +33,7 @@ export default function TeacherLoginForm() {
 
                 await secureStore.setItemAsync("access_token", result.data.accessToken);
                 await secureStore.setItemAsync("refresh_token", result.data.refreshToken);
-                alert("Login Success");
+                router.replace("/(app)")
 
             }
 

@@ -26,3 +26,20 @@ export const updatePassword = async (data: { current_password: string, new_passw
     const response = await api.patch("/api/user/password", data);
     return response.data;
 }
+
+export const updateUserAvatar = async (data: FormData) => {
+
+    const response = await api.patch("/api/user/avatar", data, { headers: { "Content-Type": "multipart/form-data" } });
+    return response.status
+}
+
+export const updateUserInformations = async (data: { first_name?: string, last_name?: string, bio?: string }) => {
+    const response = await api.patch("/api/user", data);
+    return response.status;
+}
+
+
+export const deleteAccount = async () => {
+    const response = await api.delete("/api/user");
+    return response.status;
+}

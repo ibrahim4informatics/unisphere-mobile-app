@@ -1,3 +1,4 @@
+import DeleteAccountModal from '@/components/Modals/DeleteAccountModal'
 import SignOutModal from '@/components/Modals/SignOutModal'
 import Colors from '@/constants/Colors'
 import { Feather, MaterialIcons } from '@expo/vector-icons'
@@ -58,7 +59,8 @@ const Section = ({ title, children }: any) => (
 
 const SettingsScreen = () => {
 
-    const [signoutVisible, setSignOutVisible] = useState(false)
+    const [signoutVisible, setSignOutVisible] = useState(false);
+    const [deleteAccountVisible, setDeleteAccountVisible] = useState(false);
     return (
         <LinearGradient colors={["#f8fbff", "#eef4ff"]} className="flex-1">
 
@@ -106,7 +108,7 @@ const SettingsScreen = () => {
 
                     {/* DANGER ZONE */}
                     <Section title="Danger Zone">
-                        <Item icon="trash" label="Delete Account" danger onPress={() => { }} />
+                        <Item icon="trash" label="Delete Account" danger onPress={() => { setDeleteAccountVisible(true) }} />
                         <Item icon="log-out" label="Sign Out" danger onPress={() => { setSignOutVisible(true) }} />
                     </Section>
 
@@ -115,6 +117,7 @@ const SettingsScreen = () => {
             </SafeAreaView>
 
             <SignOutModal visible={signoutVisible} setVisible={setSignOutVisible} />
+            <DeleteAccountModal visible={deleteAccountVisible} setVisible={setDeleteAccountVisible} />
         </LinearGradient>
     )
 }

@@ -1,9 +1,9 @@
 import Colors from "@/constants/Colors";
-import useSigneOut from "@/hooks/api/mutations/useSigneOut";
+import useDeleteAccount from "@/hooks/api/mutations/useDeleteAccount";
 import { useQueryClient } from "@tanstack/react-query";
 import { router } from "expo-router";
 import * as secureStore from "expo-secure-store";
-import { ActivityIndicator, Modal, Text, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, Alert, Modal, Text, TouchableOpacity, View } from "react-native";
 
 type Props = {
     visible?: boolean;
@@ -11,27 +11,28 @@ type Props = {
     onConfirm?: () => void; // optional callback for sign-out
 };
 
-export default function SignOutModal({ visible, setVisible, onConfirm }: Props) {
+export default function DeleteAccountModal({ visible, setVisible }: Props) {
     const queryClient = useQueryClient()
-    const { mutateAsync, isPending } = useSigneOut()
+    const { mutateAsync, isPending } = useDeleteAccount()
 
-    const handleSignOut = async () => {
+    const handleDelete = async () => {
         if (isPending) return
+
         try {
-            const refresh_token = await secureStore.getItemAsync("refresh_token") || "";
-            await mutateAsync(refresh_token);
+            await mutateAsync();
             queryClient.clear();
             await secureStore.deleteItemAsync("refresh_token");
             await secureStore.deleteItemAsync("access_token");
             router.replace("/(auth)/login-screen");
-            return
-        }
-
-        catch (err) {
-            console.log(err)
+            setVisible(false)
             return;
         }
 
+        catch {
+            Alert.alert("Failed", "Can not delete account now!")
+            setVisible(false)
+            return;
+        }
 
     };
 
@@ -48,23 +49,23 @@ export default function SignOutModal({ visible, setVisible, onConfirm }: Props) 
 
                     {/* Title */}
                     <Text className="text-red-600 font-extrabold text-2xl text-center">
-                        Sign Out
+                        Delete Your Account
                     </Text>
 
                     {/* Description */}
                     <Text className="text-gray-700 text-center mt-4 leading-6">
-                        Are you sure you want to sign out? You will need to log in again to access your account.
+                        Are you sure you want to delete your account,you can not get the data back!
                     </Text>
 
                     {/* Buttons */}
                     <TouchableOpacity
-                        onPress={handleSignOut}
+                        onPress={handleDelete}
                         className="bg-red-600 mt-6 h-16 rounded-2xl items-center justify-center shadow-sm disabled:bg-red-300"
                         disabled={isPending}
                     >
                         {
                             isPending ? <ActivityIndicator color={Colors.white} size={"small"} /> :
-                                <Text className="text-white font-bold text-lg">Sign Out</Text>
+                                <Text className="text-white font-bold text-lg">Yes, Delete</Text>
                         }
                     </TouchableOpacity>
 
