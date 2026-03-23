@@ -1,7 +1,7 @@
 import FormInput from "@/components/ui/FormInput";
 import PrimaryButton from "@/components/ui/PrimaryButton";
 import Spacer from "@/components/ui/Spacer";
-import useCreateTeacherProfile from "@/hooks/api/mutations/useCreateTeacherProfile";
+import useUpdateTeacherProfile from "@/hooks/api/mutations/useUpdateTeacherProfile";
 import useUniversities from "@/hooks/api/queries/useUniversities";
 import useAppSelect from "@/hooks/useAppSelect";
 import { Feather } from "@expo/vector-icons";
@@ -9,9 +9,11 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { router } from "expo-router";
 import { useState } from "react";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
-import { ActivityIndicator, Text, View } from "react-native";
+import { ActivityIndicator, Alert, Text, View } from "react-native";
 import { Dropdown } from "react-native-element-dropdown";
+import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { z } from "zod";
+
 
 
 const schema = z.object({
@@ -29,17 +31,40 @@ const schema = z.object({
         })
 })
 
-export type CreateTeacherFormField = z.infer<typeof schema>;
+export type UpdateTeacherFormFields = z.infer<typeof schema>;
 
-export default function CreateTeacherProfile() {
+type Props = {
+    phone_number?: string,
+    university_of_study: string,
+    field_of_study: string,
+    specialization: string,
+    university_id: string,
+    academic_title: string,
 
-    const { control, formState: { errors, isSubmitting }, handleSubmit } = useForm({ resolver: zodResolver(schema) });
+}
+export default function UpdateTeacherProfile(
+
+    {
+        phone_number,
+        university_of_study,
+        field_of_study,
+        specialization,
+        university_id,
+        academic_title,
+
+    }: Props
+) {
+
+    const { control, formState: { errors, isSubmitting }, handleSubmit } = useForm({
+        resolver: zodResolver(schema),
+        defaultValues: { field_of_study, specialization, phone_number, university_of_study }
+    });
 
 
     const user_id = useAppSelect(state => state.auth.user?.id);
     const [profileData, setProfileData] = useState({
-        university_id: null,
-        academic_title: "NONE",
+        university_id: university_id || null,
+        academic_title: academic_title || "NONE",
     })
 
     const academicTitles = [
@@ -52,8 +77,10 @@ export default function CreateTeacherProfile() {
     ]
     const { isLoading: isUniversitiesLoading, data: univeristiesResponse, error: universitiesError } = useUniversities({})
     const [university_id_error, setUniversityIDError] = useState("");
-    const { mutateAsync } = useCreateTeacherProfile();
-    const onSubmit: SubmitHandler<CreateTeacherFormField> = async (data) => {
+    const { mutateAsync } = useUpdateTeacherProfile();
+    const onSubmit: SubmitHandler<UpdateTeacherFormFields> = async (data) => {
+
+        if (isSubmitting) return;
         try {
 
             if (!profileData.university_id) {
@@ -62,38 +89,39 @@ export default function CreateTeacherProfile() {
             }
             if (!user_id) return;
 
-            const response = await mutateAsync({
+            // the update endpoint is the same as the create endpoint so we can use the same hook
+             await mutateAsync({
                 academic_title: profileData.academic_title,
                 field_of_study: data.field_of_study,
                 university_of_study: data.university_of_study,
                 specialization: data.specialization,
                 university_id: profileData.university_id,
-                user_id: user_id
+                phone_number: data.phone_number,
             });
 
-            if (response.status === 201) {
-                router.replace("/(auth)/(register)/upload-avatar-screen");
-                return;
-            }
+            router.back();
+            return;
 
         }
 
         catch (err: any) {
-            console.log(err.response.data);
+            Alert.alert("Error", "An error occurred while updating your profile. Please try again later.");
+            console.log(err);
         }
     }
 
     return (
-        <>
+        <KeyboardAwareScrollView enableAutomaticScroll enableOnAndroid extraHeight={60}>
             {/* This is university select */}
             <View className="mb-2">
                 <Text className="text-base">University <Text className="text-red-500">*</Text></Text>
-                <View className={`rounded-md border  my-2 ${university_id_error ? "border-red-500 bg-red-100 " : "border-gray-100"}`}>
+                <View className={`rounded-md border  my-2 ${university_id_error ? "border-red-500 bg-red-100 " : "border-gray-100 bg-white"}`}>
 
                     {isUniversitiesLoading || (!univeristiesResponse && !universitiesError) ?
                         (<ActivityIndicator />) :
                         (
                             <Dropdown
+
                                 value={profileData.university_id || undefined}
 
                                 style={{
@@ -132,7 +160,7 @@ export default function CreateTeacherProfile() {
                     }
 
                 </View>
-                
+
 
                 {university_id_error && (
                     <View className="flex-row items-center gap-2">
@@ -151,7 +179,7 @@ export default function CreateTeacherProfile() {
             {/* academic title select */}
             <View className="mb-2">
                 <Text className="text-base">Academic Title <Text className="text-red-500">*</Text></Text>
-                <View className=" rounded-md  border border-gray-100 my-2">
+                <View className=" rounded-md  border border-gray-100 my-2 bg-white">
 
 
                     <Dropdown
@@ -228,6 +256,6 @@ export default function CreateTeacherProfile() {
 
             <PrimaryButton onPress={handleSubmit(onSubmit)} title="Save" loading={isSubmitting} />
 
-        </>
+        </KeyboardAwareScrollView>
     );
 }

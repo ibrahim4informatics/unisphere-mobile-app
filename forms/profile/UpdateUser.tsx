@@ -27,15 +27,15 @@ type Props = {
 const schema = z.object({
     first_name: z.string({ error: "Field is required" }).max(35, { error: "First name must be less than 35 character" }),
     last_name: z.string({ error: "Field is Required" }).max(35, { error: "Last name must be less than 35 character" }),
-    bio: z.string().max(500, { error: "Last name must be less than 35 character" }).transform(val => !val ? undefined : val).optional(),
+    bio: z.string().max(500, { error: "Bio must be less than 500 character" }).optional(),
 })
 
 type FormFields = z.infer<typeof schema>
 export default function UpdateUser({ first_name, last_name, bio = "", avatar_url = undefined }: Props) {
 
 
-    const { isPending: updatingAvatar, mutateAsync: updateAvatar } = useUpdateUserAvatar();
-    const { isPending: updatingInformations, mutateAsync: updateInformations } = useUpdateUserInformations();
+    const { mutateAsync: updateAvatar } = useUpdateUserAvatar();
+    const { mutateAsync: updateInformations } = useUpdateUserInformations();
     const queryClient = useQueryClient();
     const [localAvatar, setLocalAvatar] = useState<{ name: string, type: string, uri: string } | null>(null)
 
@@ -58,8 +58,8 @@ export default function UpdateUser({ first_name, last_name, bio = "", avatar_url
 
             await updateInformations(data);
             queryClient.invalidateQueries({
-                exact:false,
-                queryKey:["profile"]
+                exact: false,
+                queryKey: ["profile"]
             })
             router.back();
             return

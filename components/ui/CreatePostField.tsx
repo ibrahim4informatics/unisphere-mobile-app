@@ -1,6 +1,5 @@
 import Colors from "@/constants/Colors";
 import { useCreatePost } from "@/hooks/api/mutations/useCreatePost";
-import useAppSelect from "@/hooks/useAppSelect";
 import { pickFiles } from "@/utils/pickFiles";
 import pickImage from "@/utils/pickImage";
 import { Feather } from "@expo/vector-icons";
@@ -13,12 +12,11 @@ import Spacer from "./Spacer";
 
 export default function CreatePostField() {
     const queryClient = useQueryClient();
-    const user = useAppSelect(state => state.auth.user);
+    const user: any = queryClient.getQueryData(["profile"]);
     const [type, setType] = useState<"question" | "resource">("question");
     const [content, setContent] = useState("");
     const [medias, setMedias] = useState<any[]>([]);
     const { mutateAsync, isPending, error } = useCreatePost();
-
     const isDisabled = !content.trim();
 
     const handleSubmit = async () => {
@@ -50,17 +48,20 @@ export default function CreatePostField() {
 
     };
 
+
     return (
         <View className="bg-white p-4 rounded-2xl shadow-sm">
+
 
             {/* Avatar + Input */}
             <View className="flex-row items-start gap-3">
 
                 <Image
                     source={
-                        user &&
-                            user.avatar_url
-                            ? { uri: user.avatar_url }
+                        
+                       user.data && 
+                            user.data.profile.avatar_url
+                            ? { uri: user.data.profile.avatar_url }
                             : require("@/assets/images/no-avatar.png")
                     }
                     style={{ width: 40, height: 40, borderRadius: 20 }}

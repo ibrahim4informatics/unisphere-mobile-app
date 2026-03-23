@@ -1,7 +1,9 @@
 import UITabs from "@/components/ui/UITabs";
 import Colors from "@/constants/Colors";
 import UpdateStudentProfile from "@/forms/profile/UpdateStudentProfile";
+import UpdateTeacherProfile from "@/forms/profile/UpdateTeacherProfile";
 import UpdateUser from "@/forms/profile/UpdateUser";
+import useAcademicTeacherProfile from "@/hooks/api/queries/useAcademicTeacherProfile";
 import useAcademicUserProfile from "@/hooks/api/queries/useAcademicUserProfile";
 import useCurrentProfile from "@/hooks/api/queries/useCurrentProfile";
 import { Feather } from "@expo/vector-icons";
@@ -22,7 +24,8 @@ export default function EditProfile() {
 
     const queryClient = useQueryClient();
     const user_role = (queryClient.getQueryData(["profile"]) as any).data.profile.role;
-    const { data: academicProfileResponse, isPending: academicProfileLoading, error: academicProfileError } = useAcademicUserProfile();
+    const { data: academicProfileResponse, isPending: academicProfileLoading, error: academicProfileError } = useAcademicUserProfile(user_role);
+    const { data: teacherProfileResponse, isPending: teacherProfileLoading, error: teacherProfileError } = useAcademicTeacherProfile(user_role);
     const { data: currentUserProfile, isPending: currentUserProfileLoading, error: currentUserProfileError } = useCurrentProfile();
 
 
@@ -91,10 +94,22 @@ export default function EditProfile() {
 
 
                             else {
-                                return (
-                                    <View>
-                                        <Text>Update teacher academic Informations</Text>
+
+                                if (teacherProfileLoading) {
+                                    return <View className="flex-1 items-center justify-center">
+                                        <ActivityIndicator size={"large"} color={Colors.blue[500]} />
                                     </View>
+                                }
+
+                                return (
+                                    <UpdateTeacherProfile
+                                        university_id={teacherProfileResponse?.profile.univeristy_id}
+                                        academic_title={teacherProfileResponse?.profile.academic_title}
+                                        field_of_study={teacherProfileResponse?.profile.field_of_study}
+                                        specialization={teacherProfileResponse?.profile.specialization}
+                                        university_of_study={teacherProfileResponse?.profile.university_of_study}
+                                        phone_number={teacherProfileResponse?.profile.phone_number}
+                                    />
                                 )
                             }
                         }

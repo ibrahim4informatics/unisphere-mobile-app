@@ -13,12 +13,13 @@ type Response = {
     }
 }
 
-export default function useAcademicUserProfile(options?: UseQueryOptions<Response, AxiosError>) {
+export default function useAcademicUserProfile(role: string, options?: UseQueryOptions<Response, AxiosError>) {
 
     return useQuery<Response, AxiosError>({
         queryKey: ["academic-profile"],
         queryFn: getAcademicStudentProfile,
         staleTime: 0,
+        enabled: role === "STUDENT" ? true : false,
         ...options
     })
 }
