@@ -1,15 +1,15 @@
 import useAuth from "@/hooks/useAuth";
-import { Feather } from "@expo/vector-icons";
+import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
 import { Tabs } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 export default function AppLayout() {
 
     useAuth();
-    
+
     return (
         <SafeAreaView style={{ flex: 1, backgroundColor: "#000" }} edges={["bottom"]}>
 
-            <Tabs screenOptions={{
+            <Tabs initialRouteName="(home)" screenOptions={{
                 headerShown: false,
                 tabBarStyle: {
                     height: 70,
@@ -38,11 +38,18 @@ export default function AppLayout() {
                 }} />
 
 
+                <Tabs.Screen name="(connections)" options={{
+
+                    title: "Connections",
+                    tabBarIcon: ({ color, focused, size }) => <MaterialCommunityIcons name="account-group-outline" size={size} color={color} />
+                }} />
+
                 <Tabs.Screen name="(profile)" options={{
 
                     title: "Profile",
                     tabBarIcon: ({ color, focused, size }) => <Feather name="user" size={size} color={color} />
                 }} />
+
             </Tabs>
         </SafeAreaView>
     )

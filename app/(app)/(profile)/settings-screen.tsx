@@ -91,7 +91,7 @@ const SettingsScreen = () => {
 
                     {/* CONTENT */}
                     <Section title="Content">
-                        <Item icon="bookmark" label="Bookmarks" onPress={() => { }} />
+                        <Item icon="bookmark" label="Bookmarks" onPress={() => { router.push("/bookmarks-screen") }} />
                     </Section>
 
                     {/* PRIVACY & LEGAL */}

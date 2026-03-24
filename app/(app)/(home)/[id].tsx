@@ -337,6 +337,12 @@ export default function PostDetailsScreen() {
                                 router.replace("/(app)/(home)")
                             }
 
+                            else if (params.back && params.back === "bookmarks") {
+                                router.replace("/(profile)/bookmarks-screen")
+                            }
+
+
+
                             else {
                                 router.back()
                             }
@@ -459,7 +465,7 @@ export default function PostDetailsScreen() {
                                     onPress={handleBookmark}
                                 >
                                     <Feather name="bookmark" size={22} color={data.post.is_booked ? Colors.blue[500] : Colors.gray[600]} />
-                                    <Text className={`ml-2 ${data.post.is_booked ? "text-blue-500" : "text-gray-600"}`}>{postMeta?.booksmarks ?? data.post._count.likes}</Text>
+                                    <Text className={`ml-2 ${data.post.is_booked ? "text-blue-500" : "text-gray-600"}`}>{postMeta?.booksmarks ?? data.post._count.booksmarks}</Text>
                                 </TouchableOpacity>
                             </View>
 

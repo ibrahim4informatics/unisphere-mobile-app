@@ -37,7 +37,7 @@ export default function Index() {
     }
     if (response?.data?.profile) {
       dispatch(setUser(response.data.profile));
-      router.replace("/(app)");
+      router.replace("/(app)/(home)");
     } else {
       router.replace("/(auth)/login-screen");
     }

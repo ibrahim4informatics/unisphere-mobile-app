@@ -9,6 +9,7 @@ export default function UserProfileLayout() {
             <Stack.Screen name="change-email-screen" />
             <Stack.Screen name="change-password-screen" />
             <Stack.Screen name="edit-profile-screen" />
+            <Stack.Screen name="bookmarks-screen" />
         </Stack>
     )
 }
