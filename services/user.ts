@@ -43,3 +43,9 @@ export const deleteAccount = async () => {
     const response = await api.delete("/api/user");
     return response.status;
 }
+
+
+export const searchUsers = async (params: { page?: number, role?: string, name?: string }) => {
+    const response = await api.get("/api/user", { params: { page: params.page, name: params.name, role: params.role === "ALL" ? undefined : params.role } });
+    return response.data;
+}

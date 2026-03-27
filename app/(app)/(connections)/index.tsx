@@ -128,7 +128,11 @@ const ConnectionsRequestsTab = () => {
             ListEmptyComponent={() => (<Text className="text-gray-500">No connection requests here.</Text>)}
             renderItem={({ item }) => (
                 <TouchableOpacity
-                    className="flex-row mb-2 bg-white border border-gray-100 py-4 px-6 rounded-xl elevation-sm">
+                    className="flex-row mb-2 bg-white border border-gray-100 py-4 px-6 rounded-xl elevation-sm"
+                    onPress={() => {
+                        router.push(`./user/${item.id}`)
+                    }}
+                >
 
                     <Image source={item.avatar_url ? { uri: item.avatar_url } : require("@/assets/images/no-avatar.png")} style={{ width: 48, height: 48, borderRadius: 60 }} />
                     <View className="ml-2 flex-1">
@@ -246,7 +250,9 @@ const UserConnectionsTab = () => {
 
             renderItem={({ item }) => (
                 <TouchableOpacity
-                    className="flex-row mb-2 bg-white border border-gray-100 py-4 px-6 rounded-xl elevation-sm">
+                    className="flex-row mb-2 bg-white border border-gray-100 py-4 px-6 rounded-xl elevation-sm"
+                    onPress={() => { router.push(`./user/${item.id}`) }}
+                >
 
                     <Image source={item.avatar_url ? { uri: item.avatar_url } : require("@/assets/images/no-avatar.png")} style={{ width: 48, height: 48, borderRadius: 60 }} />
                     <View className="ml-2 flex-1">
@@ -291,7 +297,8 @@ const UserConnectionsTab = () => {
 
 export default function Index() {
 
-    const [searchVisible, setSearchVisible] = useState(false)
+    const [searchVisible, setSearchVisible] = useState(false);
+    const queryClient = useQueryClient()
     return (
         <LinearGradient colors={["#f8fbff", "#eef4ff"]} className="flex-1">
             <SafeAreaView className="flex-1 px-6">
@@ -310,7 +317,7 @@ export default function Index() {
                     <Text className="text-xl font-extrabold ml-2">Connections</Text>
                     <TouchableOpacity
                         className="bg-white h-11 flex-row gap-2 px-6 ml-auto items-center justify-center rounded-full shadow-sm mr-3 elevation-md"
-                        onPress={() => { setSearchVisible(true) }}
+                        onPress={() => { setSearchVisible(true); queryClient.invalidateQueries({ queryKey: ["connections-suggested"] }) }}
                     >
                         <Text className="text-blue-500">Find People</Text>
                         <Feather name="search" size={20} color={Colors.blue[500]} />
