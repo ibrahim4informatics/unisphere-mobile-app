@@ -49,3 +49,9 @@ export const searchUsers = async (params: { page?: number, role?: string, name?:
     const response = await api.get("/api/user", { params: { page: params.page, name: params.name, role: params.role === "ALL" ? undefined : params.role } });
     return response.data;
 }
+
+
+export const getUser = async (id: string) => {
+    const response = await api.get(`/api/user/${id}`);
+    return response.data;
+}

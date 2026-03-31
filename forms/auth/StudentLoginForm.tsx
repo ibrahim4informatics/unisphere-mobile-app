@@ -55,7 +55,7 @@ export default function StudentLoginForm() {
                 await secureStore.setItemAsync("access_token", result.data.accessToken);
                 await secureStore.setItemAsync("refresh_token", result.data.refreshToken);
                 dispatch(setAuth(true));
-                router.replace("/(app)");
+                router.replace("/(app)/(home)");
             }
 
 

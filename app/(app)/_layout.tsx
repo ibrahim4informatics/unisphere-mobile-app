@@ -36,11 +36,15 @@ export default function AppLayout() {
                     title: "Home",
                     tabBarIcon: ({ color, focused, size }) => <Feather name="home" size={size} color={color} />
                 }} />
+                <Tabs.Screen name="(messages)" options={{
 
+                    title: "Messages",
+                    tabBarIcon: ({ color, focused, size }) => <MaterialCommunityIcons name="chat" size={size} color={color} />
+                }} />
 
                 <Tabs.Screen name="(connections)" options={{
 
-                    title: "Connections",
+                    title: "Network",
                     tabBarIcon: ({ color, focused, size }) => <MaterialCommunityIcons name="account-group-outline" size={size} color={color} />
                 }} />
 

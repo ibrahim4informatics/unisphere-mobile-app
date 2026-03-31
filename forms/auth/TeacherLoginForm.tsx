@@ -33,7 +33,7 @@ export default function TeacherLoginForm() {
 
                 await secureStore.setItemAsync("access_token", result.data.accessToken);
                 await secureStore.setItemAsync("refresh_token", result.data.refreshToken);
-                router.replace("/(app)")
+                router.replace("/(app)/(home)")
 
             }
 
