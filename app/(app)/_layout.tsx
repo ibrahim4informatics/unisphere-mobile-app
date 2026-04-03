@@ -1,5 +1,5 @@
 import useAuth from "@/hooks/useAuth";
-import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
+import { AntDesign, Feather } from "@expo/vector-icons";
 import { Tabs } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 export default function AppLayout() {
@@ -39,13 +39,13 @@ export default function AppLayout() {
                 <Tabs.Screen name="(messages)" options={{
 
                     title: "Messages",
-                    tabBarIcon: ({ color, focused, size }) => <MaterialCommunityIcons name="chat" size={size} color={color} />
+                    tabBarIcon: ({ color, focused, size }) => <Feather name="inbox" size={size} color={color} />
                 }} />
 
                 <Tabs.Screen name="(connections)" options={{
 
                     title: "Network",
-                    tabBarIcon: ({ color, focused, size }) => <MaterialCommunityIcons name="account-group-outline" size={size} color={color} />
+                    tabBarIcon: ({ color, focused, size }) => <AntDesign name="usergroup-add" size={size} color={color} />
                 }} />
 
                 <Tabs.Screen name="(profile)" options={{

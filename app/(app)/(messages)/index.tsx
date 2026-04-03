@@ -2,9 +2,10 @@
 
 import ConversationItem from "@/components/ui/Conversation";
 import Colors from "@/constants/Colors";
+import useUserChats from "@/hooks/api/queries/useUserChats";
 import { Feather } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
-import { FlatList, Text, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, FlatList, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 // import { conversations } from "@/dummyMessages";
 
@@ -35,12 +36,17 @@ export const conversations = [
         unread: 0,
     },
 ]
-
-
 export default function ConversationsScreen() {
-
     const insets = useSafeAreaInsets();
+    const {
+        data,
+        isPending,
+        hasNextPage,
+        fetchNextPage,
+        isFetchingNextPage
+    } = useUserChats();
 
+    if (isPending || !data) return <View className="flex-1 items-center justify-center"><ActivityIndicator size={"large"} color={Colors.blue[500]} /></View>
     return (
         <LinearGradient colors={["#f8fbff", "#eef4ff"]} className="flex-1">
 
@@ -67,17 +73,26 @@ export default function ConversationsScreen() {
 
                 {/* Header */}
                 <View className="flex-row items-center mb-6 pt-4">
-                    
+
                     <Text className="text-2xl font-extrabold text-gray-900">
                         Messages
                     </Text>
                 </View>
 
                 <FlatList
-                    data={conversations}
+                    data={data.pages.flatMap(page => page.chats)}
                     keyExtractor={(item) => item.id}
                     renderItem={({ item }) => <ConversationItem item={item} />}
                     showsVerticalScrollIndicator={false}
+                    onEndReached={() => {
+
+                        if (isFetchingNextPage || !hasNextPage) return;
+                        fetchNextPage()
+                    }}
+
+                    ListFooterComponent={() => (
+                        isFetchingNextPage && (<View className="mt-2 items-center justify-center"><ActivityIndicator size={"small"} color={Colors.blue[500]} /></View>)
+                    )}
                 />
             </SafeAreaView>
         </LinearGradient>

@@ -33,7 +33,6 @@ const ConnectionsRequestsTab = () => {
     const { mutateAsync: acceptConnection, isPending: acceptingConnection } = useAcceptConnetion();
 
     const handleRejectConnection = async (connection_id: number) => {
-        // console.log(connection_id);
         const oldDataSnapshot: any = queryClient.getQueryData(["connections-requests"]);
         await queryClient.cancelQueries({ queryKey: ["connections-requests"] })
         if (rejectingConnection) return;
@@ -59,8 +58,6 @@ const ConnectionsRequestsTab = () => {
         }
 
         catch (err) {
-
-            console.log(JSON.stringify(err));
             // rollback changes
             queryClient.setQueryData(["connections-requests"], oldDataSnapshot)
 
@@ -70,7 +67,6 @@ const ConnectionsRequestsTab = () => {
 
 
     const handleAcceptConnection = async (connection_id: number) => {
-        // console.log(connection_id);
         const oldDataSnapshot: any = queryClient.getQueryData(["connections-requests"]);
         await queryClient.cancelQueries({ queryKey: ["connections-requests"] })
         if (acceptingConnection) return;
@@ -102,7 +98,6 @@ const ConnectionsRequestsTab = () => {
 
         catch (err) {
 
-            console.log(JSON.stringify(err));
             // rollback changes
             queryClient.setQueryData(["connections-requests"], oldDataSnapshot)
 
@@ -200,7 +195,6 @@ const UserConnectionsTab = () => {
 
         if (unConnecting) return;
         const snapshot = queryClient.getQueryData(["connections"]);
-        console.log(JSON.stringify(snapshot));
         await queryClient.cancelQueries({ queryKey: ["connections"] });
         try {
             queryClient.setQueryData(["connections"], (oldData: any) => {
@@ -219,7 +213,6 @@ const UserConnectionsTab = () => {
 
         }
         catch (err) {
-            console.log(err);
             //rollback
             queryClient.setQueryData(["connections"], snapshot);
             return;

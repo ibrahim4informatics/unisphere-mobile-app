@@ -49,7 +49,6 @@ api.interceptors.response.use(
 
             }
             catch (refreshError: any) {
-                console.log(JSON.stringify(refreshError))
                 await secureStore.deleteItemAsync("refresh_token")
                 return Promise.reject(refreshError);
             }
