@@ -1,8 +1,18 @@
 import Colors from "@/constants/Colors";
-import { Feather } from "@expo/vector-icons";
-import { router } from "expo-router";
-import React, { useEffect, useRef, useState } from "react";
+import useChatById from "@/hooks/api/queries/useChatById";
+import { useChatMessages } from "@/hooks/api/queries/useChatMessages";
+import { getSocket } from "@/services/socket";
+import { pickFiles } from "@/utils/pickFiles";
+import pickImage from "@/utils/pickImage";
+import timeFormat from "@/utils/timeFormatter";
+import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
+import { useQueryClient } from "@tanstack/react-query";
+import { Image } from "expo-image";
+import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
+import React, { useCallback, useEffect, useState } from "react";
 import {
+  ActivityIndicator,
+  FlatList,
   Keyboard,
   Platform,
   Text,
@@ -19,12 +29,56 @@ const initialMessages = [
 ];
 
 export default function ChatScreen() {
-  const [messages, setMessages] = useState(initialMessages);
   const [input, setInput] = useState("");
   const [keyboardHeight, setKeyboardHeight] = useState(0);
-  const flatListRef = useRef<any>(null);
+  const params: { id: string } = useLocalSearchParams()
+  const socket = getSocket();
+  const queryClient = useQueryClient();
+  const user_id = (queryClient.getQueryData(["profile"]) as any).data.profile.id;
 
-  // 🔥 Correct keyboard listeners for both platforms
+
+  const { isPending: chatLoading, data: chatData, error: chatError } = useChatById(parseInt(params.id));
+  const { isPending: messagesLoading, data: messagesData, error: messagesError } = useChatMessages(parseInt(params.id));
+
+  useFocusEffect(useCallback(() => {
+    if (!socket) return;
+    socket.emit(`enter-chat`, params.id);
+
+    return () => {
+      queryClient.invalidateQueries({
+        queryKey: ["chat", parseInt(params.id)]
+      })
+
+
+      queryClient.invalidateQueries({
+        queryKey: ["chats"]
+      })
+      socket.emit("leave-chat", params.id)
+    }
+  }, []));
+
+  useEffect(() => {
+    if (!socket) return;
+    socket.on("new-message", (message) => {
+      queryClient.setQueryData(["chat-messages", parseInt(params.id)], (oldData: any) => {
+        if (!oldData) return oldData;
+        const pages = [...oldData.pages];
+        const { sender_id, ...msg } = message
+        pages[pages.length - 1] = {
+          ...pages[pages.length - 1], messages: [
+            { ...msg, sender: sender_id === user_id ? "self" : "other" },
+            ...pages[pages.length - 1].messages,
+          ]
+        }
+        return { ...oldData, pages }
+      })
+    });
+
+    return () => {
+      socket.off("new-message")
+    }
+  }, [])
+  // Correct keyboard listeners for both platforms
   useEffect(() => {
     const showEvent =
       Platform.OS === "ios" ? "keyboardWillShow" : "keyboardDidShow";
@@ -47,26 +101,22 @@ export default function ChatScreen() {
 
   const sendMessage = () => {
     if (!input.trim()) return;
-
-    const newMessage = {
-      id: Date.now().toString(),
-      text: input,
-      sender: "me",
-    };
-
-    setMessages((prev) => [...prev, newMessage]);
+    if (!socket) return;
+    socket.emit("send-message", { text: input, chat_id: parseInt(params.id) });
     setInput("");
 
-    setTimeout(() => {
-      flatListRef.current?.scrollToEnd({ animated: true });
-    }, 50);
+
   };
 
+  if (chatLoading || messagesLoading) {
+    return <View className="flex-1 bg-white items-center justify-center">
+      <ActivityIndicator size={"large"} color={Colors.blue[500]} />
+    </View>
+  }
+
   return (
-    <SafeAreaView edges={["left", "right", "top"]} className="flex-1 bg-gray-100">
+    <SafeAreaView edges={["left", "right", "top"]} className="flex-1 bg-white">
       <View className="flex-1">
-
-
         {/* Header */}
         <View className="flex-row gap-2 px-6 mb-6 pt-4 items-center">
           {/* Back Button */}
@@ -77,43 +127,77 @@ export default function ChatScreen() {
             <Feather name="arrow-left" size={20} color={Colors.blue[500]} />
           </TouchableOpacity>
 
-          <Text className="text-lg font-bold">Benyahia Ibrahim</Text>
+          <Image style={{ width: 35, height: 35, borderRadius: 20 }} source={chatData.chat.participants[0].user.avatar_url ? { uri: chatData.chat.participants[0].user.avatar_url } : require("@/assets/images/no-avatar.png")} />
+
+          <View className="flex-1">
+            <Text className="text-lg font-bold">{chatData.chat.participants[0].user.first_name} {chatData.chat.participants[0].user.last_name}</Text>
+            {chatData.chat.participants[0].last_read_at && (
+              <Text className="text-xs text-gray-600">Active {timeFormat(chatData.chat.participants[0].last_read_at)} ago</Text>
+            )}
+          </View>
 
         </View>
         {/* Messages */}
-        {/* <KeyboardAwareFlatList
-          ref={flatListRef}
-          data={messages}
-          keyExtractor={(item) => item.id}
-          enableOnAndroid
-          keyboardShouldPersistTaps="handled"
-          extraScrollHeight={keyboardHeight}
 
+        <FlatList
+          keyExtractor={(item) => item.id}
+
+          data={messagesData?.pages.flatMap(page => page.messages)}
           renderItem={({ item }) => (
-            <View
-              className={`mb-3 px-4 py-3 rounded-2xl max-w-[75%] ${item.sender === "me"
+            item.text !== "Sent File" ?
+              <View
+                className={`mb-3 px-4 py-3 rounded-2xl max-w-[75%] ${item.sender === "self"
                   ? "self-end bg-blue-500"
                   : "self-start bg-white"
-                }`}
-            >
-              <Text
-                className={
-                  item.sender === "me"
-                    ? "text-white"
-                    : "text-gray-800"
-                }
+                  }`}
               >
-                {item.text}
-              </Text>
-            </View>
+                <Text
+                  className={
+                    item.sender === "self"
+                      ? "text-white"
+                      : "text-gray-800"
+                  }
+                >
+                  {item.text}
+                </Text>
+              </View> :
+              item.attachments[0].type === "IMAGE" ? 
+             <Image source={{uri:item.attachments[0].url}} style={ { width:200, height:300, borderRadius:12, alignSelf:item.sender === "self" ? "flex-end" : "flex-start", borderWidth:1, borderColor:Colors.gray[200], marginVertical:6 } }/> 
+              :<></>
           )}
-        /> */}
+          inverted
+          className="py-4 px-2 bg-gray-100"
+
+        />
+
 
         {/* Input */}
+
         <View
           className="flex-row items-center bg-white border-t border-gray-200 px-4 py-3 mt-auto"
           style={{ marginBottom: keyboardHeight === 0 ? 0 : keyboardHeight - 74 }}
         >
+          {/* Attachment Button */}
+          <TouchableOpacity
+            onPress={async () => {
+              await pickFiles();
+            }}
+            className="mr-2 bg-gray-100 p-3 rounded-full"
+          >
+            <Feather name="paperclip" size={20} color="#4b5563" />
+          </TouchableOpacity>
+
+          {/* Image Button (bigger) */}
+          <TouchableOpacity
+            onPress={async () => {
+              await pickImage(true)
+            }}
+            className="mr-2 bg-gray-100 p-3 rounded-full"
+          >
+            <MaterialCommunityIcons name="image-outline" size={24} color="#4b5563" />
+          </TouchableOpacity>
+
+          {/* Text Input */}
           <TextInput
             value={input}
             onChangeText={setInput}
@@ -122,14 +206,14 @@ export default function ChatScreen() {
             placeholderTextColor="#9ca3af"
           />
 
+          {/* Minimal Send Button */}
           <TouchableOpacity
             onPress={sendMessage}
-            className="ml-3 bg-blue-500 px-4 py-3 rounded-full"
+            className="ml-2 bg-blue-500 p-3 rounded-full"
           >
-            <Text className="text-white font-semibold">Send</Text>
+            <Feather name="send" size={18} color="white" />
           </TouchableOpacity>
         </View>
-
       </View>
     </SafeAreaView>
   );

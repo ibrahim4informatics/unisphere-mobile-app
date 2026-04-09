@@ -379,10 +379,16 @@ export default function SearchUsersModal({ visible, setVisible }: Props) {
 
 
                     <KeyboardAwareFlatList
+
+                        onEndReached={() => {
+                            if (!usersSearchHasNextPage && usersSearchNextPageFetching) return;
+                            usersSearchFetchNextPage();
+                        }}
                         className="mt-6"
                         ListFooterComponent={() => (
                             /* Suggestion */
                             <>
+                                {usersSearchNextPageFetching && <View className="py-4 items-center justify-center"><ActivityIndicator size={"small"} color={Colors.blue[500]} /></View>}
                                 {
                                     suggestedConnectionLoading ? <View className="py-6 items-center justify-center">
                                         <ActivityIndicator size={"large"} color={Colors.blue[500]} />

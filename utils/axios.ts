@@ -1,3 +1,4 @@
+import { refreshSocketToken } from "@/services/socket";
 import axios from "axios";
 import * as secureStore from "expo-secure-store";
 
@@ -43,6 +44,7 @@ api.interceptors.response.use(
 
                 if (res.status === 200) {
                     await secureStore.setItemAsync("access_token", res.data.accessToken);
+                    refreshSocketToken(res.data.accessToken);
                     originalRequest.headers.Authorization = `Bearer ${res.data.accessToken}`;
                     return api(originalRequest);
                 }

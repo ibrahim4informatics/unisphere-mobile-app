@@ -5,21 +5,24 @@ import * as NavigationBar from "expo-navigation-bar";
 import { router, Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { useEffect } from "react";
-import { Text, TouchableOpacity } from "react-native";
+import { LogBox, Text, TouchableOpacity } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { Provider } from "react-redux";
 import "../global.css";
 
+LogBox.ignoreLogs([
+  '"shadow*" style props are deprecated'
+]);
 const queryClient = new QueryClient();
 export default function RootLayout() {
 
 
-  useEffect(()=>{
+  useEffect(() => {
 
 
     NavigationBar.setBackgroundColorAsync("#fff");
     NavigationBar.setButtonStyleAsync("dark")
-  },[])
+  }, [])
 
 
 

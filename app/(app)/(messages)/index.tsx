@@ -1,42 +1,45 @@
 // ConversationsScreen.tsx
 
+import CreateChatModal from "@/components/Modals/CreateChatModal";
 import ConversationItem from "@/components/ui/Conversation";
 import Colors from "@/constants/Colors";
 import useUserChats from "@/hooks/api/queries/useUserChats";
 import { Feather } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
+import { useState } from "react";
 import { ActivityIndicator, FlatList, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 // import { conversations } from "@/dummyMessages";
 
 // dummyMessages.ts
-export const conversations = [
-    {
-        id: "1",
-        user: {
-            id: "u1",
-            first_name: "Ahmed",
-            last_name: "Benali",
-            avatar_url: "https://res.cloudinary.com/djn33vea9/image/upload/v1774302431/users/56949d61-5a38-4376-8bf6-df5dffa0affc/profile_pictures/i0gvbii2xb0npdq8nnyv.jpg",
-        },
-        lastMessage: "Hey bro, are we meeting today?",
-        time: "2m",
-        unread: 12,
-    },
-    {
-        id: "2",
-        user: {
-            id: "u2",
-            first_name: "Sara",
-            last_name: "Khaled",
-            avatar_url: null,
-        },
-        lastMessage: "Sent the files 👍",
-        time: "1h",
-        unread: 0,
-    },
-]
+// export const conversations = [
+//     {
+//         id: "1",
+//         user: {
+//             id: "u1",
+//             first_name: "Ahmed",
+//             last_name: "Benali",
+//             avatar_url: "https://res.cloudinary.com/djn33vea9/image/upload/v1774302431/users/56949d61-5a38-4376-8bf6-df5dffa0affc/profile_pictures/i0gvbii2xb0npdq8nnyv.jpg",
+//         },
+//         lastMessage: "Hey bro, are we meeting today?",
+//         time: "2m",
+//         unread: 12,
+//     },
+//     {
+//         id: "2",
+//         user: {
+//             id: "u2",
+//             first_name: "Sara",
+//             last_name: "Khaled",
+//             avatar_url: null,
+//         },
+//         lastMessage: "Sent the files 👍",
+//         time: "1h",
+//         unread: 0,
+//     },
+// ]
 export default function ConversationsScreen() {
+    const [makeConversationShown, setMakeConversationShown] = useState(false);
     const insets = useSafeAreaInsets();
     const {
         data,
@@ -52,6 +55,9 @@ export default function ConversationsScreen() {
 
             <TouchableOpacity
                 activeOpacity={0.85}
+                onPress={() => {
+                    setMakeConversationShown(true)
+                }}
                 className="flex-row items-center absolute right-5 px-5 py-4 rounded-full"
                 style={{
                     bottom: insets.bottom + 20,
@@ -95,6 +101,8 @@ export default function ConversationsScreen() {
                     )}
                 />
             </SafeAreaView>
+
+            <CreateChatModal visible={makeConversationShown} setVisible={setMakeConversationShown} />
         </LinearGradient>
     );
 }

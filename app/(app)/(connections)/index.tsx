@@ -233,7 +233,7 @@ const UserConnectionsTab = () => {
         <FlatList
 
             data={userConnectionsData?.pages.flatMap(page => page.connections)}
-            // keyExtractor={(item)=> item.id}
+            keyExtractor={(item)=> item.id}
             ListHeaderComponent={() => (
                 <Text className="text-lg font-bold mt-2">Your Connections</Text>
             )}

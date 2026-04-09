@@ -1,10 +1,23 @@
 import useAuth from "@/hooks/useAuth";
+import { connectSocket, getSocket } from "@/services/socket";
 import { AntDesign, Feather } from "@expo/vector-icons";
 import { Tabs } from "expo-router";
+import * as secureStore from "expo-secure-store";
+import { useEffect } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 export default function AppLayout() {
 
     useAuth();
+
+
+    useEffect(() => {
+
+        const socket = getSocket();
+        if (!socket) {
+            const token = secureStore.getItem("access_token");
+            connectSocket(token!);
+        }
+    }, [])
 
     return (
         <SafeAreaView style={{ flex: 1, backgroundColor: "#000" }} edges={["bottom"]}>

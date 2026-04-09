@@ -3,6 +3,7 @@ import PasswordInput from "@/components/ui/PasswordInput";
 import PrimaryButton from "@/components/ui/PrimaryButton";
 import { useAppDispatch } from "@/hooks/useAppDispatch";
 import { loginUser } from "@/services/authServices";
+import { connectSocket } from "@/services/socket";
 import { setAuth } from "@/store/slices/authSlice";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { router } from "expo-router";
@@ -54,6 +55,7 @@ export default function StudentLoginForm() {
 
                 await secureStore.setItemAsync("access_token", result.data.accessToken);
                 await secureStore.setItemAsync("refresh_token", result.data.refreshToken);
+                connectSocket(result.data.accessToken)
                 dispatch(setAuth(true));
                 router.replace("/(app)/(home)");
             }
