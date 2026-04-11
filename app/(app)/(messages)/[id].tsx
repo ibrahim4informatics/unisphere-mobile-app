@@ -2,10 +2,8 @@ import Colors from "@/constants/Colors";
 import useChatById from "@/hooks/api/queries/useChatById";
 import { useChatMessages } from "@/hooks/api/queries/useChatMessages";
 import { getSocket } from "@/services/socket";
-import { pickFiles } from "@/utils/pickFiles";
-import pickImage from "@/utils/pickImage";
 import timeFormat from "@/utils/timeFormatter";
-import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
+import { Feather } from "@expo/vector-icons";
 import { useQueryClient } from "@tanstack/react-query";
 import { Image } from "expo-image";
 import { router, useFocusEffect, useLocalSearchParams } from "expo-router";
@@ -144,26 +142,22 @@ export default function ChatScreen() {
 
           data={messagesData?.pages.flatMap(page => page.messages)}
           renderItem={({ item }) => (
-            item.text !== "Sent File" ?
-              <View
-                className={`mb-3 px-4 py-3 rounded-2xl max-w-[75%] ${item.sender === "self"
-                  ? "self-end bg-blue-500"
-                  : "self-start bg-white"
-                  }`}
+            <View
+              className={`mb-3 px-4 py-3 rounded-2xl max-w-[75%] ${item.sender === "self"
+                ? "self-end bg-blue-500"
+                : "self-start bg-white"
+                }`}
+            >
+              <Text
+                className={
+                  item.sender === "self"
+                    ? "text-white"
+                    : "text-gray-800"
+                }
               >
-                <Text
-                  className={
-                    item.sender === "self"
-                      ? "text-white"
-                      : "text-gray-800"
-                  }
-                >
-                  {item.text}
-                </Text>
-              </View> :
-              item.attachments[0].type === "IMAGE" ? 
-             <Image source={{uri:item.attachments[0].url}} style={ { width:200, height:300, borderRadius:12, alignSelf:item.sender === "self" ? "flex-end" : "flex-start", borderWidth:1, borderColor:Colors.gray[200], marginVertical:6 } }/> 
-              :<></>
+                {item.text}
+              </Text>
+            </View>
           )}
           inverted
           className="py-4 px-2 bg-gray-100"
@@ -177,26 +171,6 @@ export default function ChatScreen() {
           className="flex-row items-center bg-white border-t border-gray-200 px-4 py-3 mt-auto"
           style={{ marginBottom: keyboardHeight === 0 ? 0 : keyboardHeight - 74 }}
         >
-          {/* Attachment Button */}
-          <TouchableOpacity
-            onPress={async () => {
-              await pickFiles();
-            }}
-            className="mr-2 bg-gray-100 p-3 rounded-full"
-          >
-            <Feather name="paperclip" size={20} color="#4b5563" />
-          </TouchableOpacity>
-
-          {/* Image Button (bigger) */}
-          <TouchableOpacity
-            onPress={async () => {
-              await pickImage(true)
-            }}
-            className="mr-2 bg-gray-100 p-3 rounded-full"
-          >
-            <MaterialCommunityIcons name="image-outline" size={24} color="#4b5563" />
-          </TouchableOpacity>
-
           {/* Text Input */}
           <TextInput
             value={input}

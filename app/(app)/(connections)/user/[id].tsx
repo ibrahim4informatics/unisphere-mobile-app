@@ -1,4 +1,6 @@
 import Colors from "@/constants/Colors";
+import useCreateChat from "@/hooks/api/mutations/useCreateChat";
+import useGetChatByUserId from "@/hooks/api/mutations/useGetChatByUserId";
 import useSendConnetion from "@/hooks/api/mutations/useSendConnection";
 import useGetUser from "@/hooks/api/queries/useGetUser";
 import { Feather, FontAwesome } from "@expo/vector-icons";
@@ -14,6 +16,12 @@ import { SafeAreaView } from "react-native-safe-area-context";
 export default function PublicUserProfile() {
 
     const params: { id: string } = useLocalSearchParams();
+    const user_id = params.id;
+
+    const { mutateAsync: getChatIdIfExists, isPending: searchingForChatWithUser } = useGetChatByUserId();
+
+
+    const { mutateAsync: createChat, isPending: creatingChat } = useCreateChat()
 
     const { isPending, data } = useGetUser(params.id);
     const { mutateAsync: sendConnection, isPending: sendingConnection } = useSendConnetion();
@@ -49,7 +57,42 @@ export default function PublicUserProfile() {
 
     };
 
-    const handleSendMessage = () => { }
+    const handleSendMessage = async () => {
+
+        if (creatingChat || searchingForChatWithUser) return;
+
+        try {
+
+            const data = await getChatIdIfExists(user_id);
+            console.log(data.chat.id)
+            const chat_id = data.chat.id
+            router.push(`../../(messages)/${chat_id}`);
+
+        }
+
+        catch (err: any) {
+
+            if (err.response.status === 404) {
+                // create the chat
+
+                try {
+
+                    const data = await createChat(user_id);
+                    router.push(`./${data.chat.id}`);
+                }
+
+                catch (err) {
+                    console.log(err);
+                }
+            }
+
+        } finally {
+
+            queryClient.invalidateQueries({
+                queryKey: ["chats"]
+            })
+        }
+    }
 
     return (
         <LinearGradient colors={["#f8fbff", "#eef4ff"]} className="flex-1">
@@ -114,9 +157,13 @@ export default function PublicUserProfile() {
                         <TouchableOpacity className="bg-blue-500 py-4 items-center justify-center flex-row gap-2 mt-4 rounded-xl"
                             onPress={handleSendMessage}
                         >
-                            <Feather name="message-circle" color={Colors.white} size={24} />
+                            {creatingChat ? <ActivityIndicator size={"small"} color={Colors.white} /> : (
+                                <>
+                                    <Feather name="message-circle" color={Colors.white} size={24} />
 
-                            <Text className="text-white font-bold">Send Message</Text>
+                                    <Text className="text-white font-bold">Send Message</Text>
+                                </>
+                            )}
 
                         </TouchableOpacity>
                     )

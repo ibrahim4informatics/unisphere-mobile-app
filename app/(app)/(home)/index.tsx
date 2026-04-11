@@ -80,6 +80,9 @@ export default function HomeScreen() {
                         contentFit="contain"
                     />
                     <TouchableOpacity
+                    onPress={()=>{
+                        router.push("/(global)/notifications-screen")
+                    }}
                         className="mr-3 bg-white rounded-full items-center justify-center"
                         style={{
                             width: 44,
