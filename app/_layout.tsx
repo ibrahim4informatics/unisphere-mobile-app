@@ -1,11 +1,10 @@
-import Colors from "@/constants/Colors";
 import { store } from "@/store/store";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import * as NavigationBar from "expo-navigation-bar";
-import { router, Stack } from "expo-router";
+import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { useEffect } from "react";
-import { LogBox, Text, TouchableOpacity } from "react-native";
+import { LogBox } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { Provider } from "react-redux";
 import "../global.css";
@@ -48,10 +47,10 @@ export default function RootLayout() {
           </SafeAreaProvider>
 
         </QueryClientProvider>
-        <TouchableOpacity style={{ position: "absolute", width: 30, height: 30, backgroundColor: Colors.blue[600], borderRadius: 999, bottom: 40, right: 10, justifyContent: "center", alignItems: "center" }} onPress={() => { router.push("/(global)/network-error") }}>
+        {/* <TouchableOpacity style={{ position: "absolute", width: 30, height: 30, backgroundColor: Colors.blue[600], borderRadius: 999, bottom: 40, right: 10, justifyContent: "center", alignItems: "center" }} onPress={() => { router.push("/(global)/network-error") }}>
 
           <Text className="text-white">Dev</Text>
-        </TouchableOpacity>
+        </TouchableOpacity> */}
       </Provider>
 
     </>)

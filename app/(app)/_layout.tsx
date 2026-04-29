@@ -55,6 +55,14 @@ export default function AppLayout() {
                     tabBarIcon: ({ color, focused, size }) => <Feather name="inbox" size={size} color={color} />
                 }} />
 
+
+                <Tabs.Screen
+                    name="(courses)" options={{
+                        title: "Courses",
+                        tabBarIcon: ({ color, focused, size }) => <Feather name="book-open" size={size} color={color} />
+                    }}
+                />
+
                 <Tabs.Screen name="(connections)" options={{
 
                     title: "Network",
