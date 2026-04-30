@@ -1,6 +1,9 @@
 import Colors from "@/constants/Colors";
+import useEnrollInCourse from "@/hooks/api/mutations/useEnrollInCourse";
+import useQuitCourse from "@/hooks/api/mutations/useQuitCourse";
 import useCourseDetails from "@/hooks/api/queries/useCourseDetails";
 import { Feather } from "@expo/vector-icons";
+import { useQueryClient } from "@tanstack/react-query";
 import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
 import { router, useLocalSearchParams } from "expo-router";
@@ -8,84 +11,72 @@ import { ActivityIndicator, ScrollView, Text, TouchableOpacity, View } from "rea
 import { SafeAreaView } from "react-native-safe-area-context";
 
 
-const courseData = {
-    "course": {
-        "id": "287d5bf0-3a0e-40ce-a9f8-4e31703af06f",
-        "name": "Relational Database",
-        "code": "RDB",
-        "description": "An introduction to relational databases covering data modeling, SQL querying, schema design, and normalization. Students gain hands-on experience with RDBMS tools and learn to manage structured data efficiently in real-world applications.",
-        "status": "ACCEPTED",
-        "field_id": 117,
-        "faculty_id": 25,
-        "module_id": 3,
-        "publisher_id": 2,
-        "updated_at": "2026-04-17T10:28:43.368Z",
-        "created_at": "2026-04-15T09:30:51.004Z",
-        "studentProfileId": null,
-        "faculty": {
-            "name": "Faculty of Exact Sciences",
-            "id": 25,
-            "university": {
-                "name": "University of Oran 1"
-            }
-        },
-        "courseSections": [
-            {
-                "id": 2,
-                "title": "Sql Introduction",
-                "order": 2
-            }
-        ],
-        "module": {
-            "name": "Data Bases",
-            "id": 3,
-            "code": "SGDB",
-            "levels": [
-                {
-                    "name": "L2",
-                    "id": 2
-                },
-                {
-                    "name": "Engineering Year 1",
-                    "id": 56
-                }
-            ]
-        },
-        "field": {
-            "name": "Computer Science",
-            "id": 117
-        },
-        "publisher": {
-            "university": {
-                "name": "University of Oran 1"
-            },
-            "academic_title": "PROFESSOR",
-            "specialization": "UML",
-            "user": {
-                "first_name": "Adla",
-                "last_name": "Abd Elkader",
-                "avatar_url": null,
-                "id": "dedd071c-8a48-4f40-9c9d-5137926f3d02"
-            }
-        },
-        "courseEnrollments": [
-            {
-                "student_id": 2
-            }
-        ],
-        "_count": {
-            "courseEnrollments": 1,
-            "courseSections": 1
-        }
-    },
-    "is_enrolled": true
-}
-
 export default function CourseDetails() {
 
+    const queryClient = useQueryClient()
     const { id }: { id: string } = useLocalSearchParams();
+    const { mutateAsync: enroll, isPending: enrolling } = useEnrollInCourse();
+    const { mutateAsync: quit, isPending: quittingCourse } = useQuitCourse();
     const { data, isPending, error } = useCourseDetails(id);
     const course = data?.course;
+
+    const quitCourse = async (course_id: string) => {
+        const course_snapshot = queryClient.getQueryData(["courses", course_id]);
+        if (quittingCourse) return;
+        try {
+            await quit(course_id);
+            queryClient.setQueryData(["courses", course_id], (oldData: any) => {
+                if (!oldData) return oldData;
+                return {
+                    ...oldData,
+                    is_enrolled: false
+                }
+            })
+        }
+
+        catch (err) {
+            console.log(err);
+            queryClient.setQueryData(["courses", course_id], course_snapshot)
+        }
+        finally {
+            queryClient.invalidateQueries({
+                exact: false,
+                queryKey: ["courses"]
+            })
+        }
+
+
+    }
+
+
+    const handleEnroll = async (course_id: string) => {
+        const courses_snapshot = queryClient.getQueryData(["courses", course_id]);
+
+        if (enrolling) return;
+
+        try {
+            await enroll(course_id);
+            queryClient.setQueryData(["courses", course_id], (oldData: any) => {
+                if (!oldData) return oldData
+                return {
+                    ...oldData,
+                    is_enrolled: true
+                }
+            });
+            queryClient.invalidateQueries({
+                queryKey: ["courses"],
+                exact: false,
+            });
+
+
+        }
+
+        catch (err) {
+            console.log(err)
+            // rollback
+            queryClient.setQueryData(["courses"], courses_snapshot);
+        }
+    }
 
     if (isPending) return <View className="flex-1 items-center justify-center">
         <ActivityIndicator color={Colors.blue[500]} size={"large"} />
@@ -190,7 +181,7 @@ export default function CourseDetails() {
                                 Targeted Levels
                             </Text>
                             <View className="flex-row flex-wrap gap-2">
-                                {course.module.levels.map((level:any) => (
+                                {course.module.levels.map((level: any) => (
                                     <View
                                         key={level.id}
                                         className="bg-blue-50 px-3 py-1 rounded-full border border-blue-100"
@@ -276,7 +267,7 @@ export default function CourseDetails() {
                     </Text>
 
                     {/* Sections List */}
-                    {course.courseSections.map((section:any) => (
+                    {course.courseSections.map((section: any) => (
                         <View
                             key={section.id}
                             className="flex-row items-center gap-3 py-3 border-t border-gray-100"
@@ -297,21 +288,54 @@ export default function CourseDetails() {
                 {/* Bottom Enroll Button */}
                 {!data.is_enrolled && (
                     <View className="mt-8">
-                        <TouchableOpacity className="bg-blue-500 py-4 rounded-2xl items-center shadow-md">
+                        <TouchableOpacity onPress={async()=>{
+                            await handleEnroll(id)
+                        }} className="bg-blue-500 py-4 rounded-2xl items-center shadow-md">
                             <Text className="text-white font-semibold text-base">
                                 Enroll in this Course
                             </Text>
                         </TouchableOpacity>
                     </View>
                 )}
-
                 {data.is_enrolled && (
-                    <View className="mt-8">
-                        <TouchableOpacity className="bg-blue-200 py-4 rounded-2xl items-center shadow-md">
-                            <Text className="text-blue-500 font-semibold text-base">
+                    <View className="mt-10 gap-4">
+
+                        {/* START LEARNING */}
+                        <TouchableOpacity
+                        onPress={()=>{
+                            router.push(`./sections?course_id=${id}`)
+                        }}
+                            activeOpacity={0.85}
+                            className="bg-blue-500 py-4 rounded-2xl flex-row items-center justify-center shadow-lg"
+                            style={{
+                                shadowColor: "#3B82F6",
+                                shadowOffset: { width: 0, height: 8 },
+                                shadowOpacity: 0.25,
+                                shadowRadius: 12,
+                                elevation: 8,
+                            }}
+                        >
+                            <Feather name="play-circle" size={20} color="#FFFFFF" />
+                            <Text className="text-white font-bold text-base ml-3">
                                 Start Learning
                             </Text>
                         </TouchableOpacity>
+
+                        {/* QUIT COURSE */}
+                        <TouchableOpacity
+                            activeOpacity={0.85}
+                            className="py-4 rounded-2xl flex-row items-center justify-center border border-red-400 bg-red-50"
+                            onPress={async () => { await quitCourse(id) }}
+                        >
+
+                            {quittingCourse ? <ActivityIndicator size={"small"} color={Colors.red[600]} /> :
+                                <>
+                                    <Feather name="log-out" size={18} color="#DC2626" />
+                                    <Text className="text-red-600 font-semibold text-base ml-3">
+                                        Quit Course
+                                    </Text></>}
+                        </TouchableOpacity>
+
                     </View>
                 )}
             </ScrollView>

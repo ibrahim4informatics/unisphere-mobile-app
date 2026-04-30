@@ -5,5 +5,7 @@ export default function CoursesLayout() {
         <Stack.Screen name="index" />
         <Stack.Screen name="student/courses" />
         <Stack.Screen name="student/my-courses" />
+        <Stack.Screen name="student/course_details/[id]" />
+        <Stack.Screen name="student/course_details/sections" />
     </Stack>
 }

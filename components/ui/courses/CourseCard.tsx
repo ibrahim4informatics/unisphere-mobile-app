@@ -24,12 +24,11 @@ export default function CourseCard({ course }: Props) {
 
         try {
 
-            const result = await enroll(course_id);
+            await enroll(course_id);
 
 
 
             queryClient.setQueriesData({ queryKey: ["courses"], exact: false }, (oldData: any) => {
-                console.log(oldData)
                 if (!oldData?.pages) return oldData
 
                 return {
