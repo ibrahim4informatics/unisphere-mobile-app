@@ -1,4 +1,5 @@
 import Colors from "@/constants/Colors";
+import useDeleteCourseSection from "@/hooks/api/mutations/useDeleteCourseSection";
 import useCourseSections from "@/hooks/api/queries/useCourseSections";
 import { Feather } from "@expo/vector-icons";
 import { useQueryClient } from "@tanstack/react-query";
@@ -16,11 +17,13 @@ type SectionProps = {
 
 export function SectionItem({
     section,
+    deleting = false,
     onPress,
     onEdit,
     onDelete,
 }: {
     section: any;
+    deleting?: boolean;
     onPress: () => void;
     onEdit: () => void;
     onDelete: () => void;
@@ -58,7 +61,9 @@ export function SectionItem({
                         onPress={onDelete}
                         className="w-10 h-10 rounded-full bg-red-50 items-center justify-center"
                     >
-                        <Feather name="trash-2" size={18} color="#ef4444" />
+                        {
+                            deleting ? <ActivityIndicator size={"small"} color={Colors.red[600]} /> : <Feather name="trash-2" size={18} color={Colors.red[600]} />
+                        }
                     </TouchableOpacity>
                 </View>
             </View>
@@ -69,6 +74,7 @@ export default function Sections() {
     const { course_id }: { course_id: string } = useLocalSearchParams();
     const queryClient = useQueryClient();
     const courseData: any = queryClient.getQueryData(["courses", "teacher", "my-courses", course_id]);
+    const { mutateAsync: deleteSection, isPending: deletingSection } = useDeleteCourseSection()
     const { isPending: loadingSections, data: sectionsData, error: sectionsError,
         hasNextPage: hasMoreSections, fetchNextPage: loadMoreSections, isFetchingNextPage: loadingMoreSections
     } = useCourseSections(course_id);
@@ -78,6 +84,8 @@ export default function Sections() {
             className="flex-1"
         >
             <SafeAreaView className="flex-1 px-6">
+
+
 
                 <View className="flex-row items-center gap-2">
 
@@ -124,7 +132,36 @@ export default function Sections() {
                                     renderItem={({ item }) => (
                                         <SectionItem
                                             section={item}
-                                            onDelete={() => { }}
+                                            deleting={deletingSection}
+
+                                            onDelete={async () => {
+
+                                                const snapshot = queryClient.getQueryData(["courses", course_id, "sections"]);
+
+                                                try {
+
+                                                    await deleteSection({ course_id, section_id: item.id });
+                                                    queryClient.setQueryData(["courses", course_id, "sections"], (oldData: any) => {
+                                                        if (!oldData) return oldData;
+                                                        return {
+                                                            ...oldData,
+                                                            pages: oldData.pages.map((page: any) => ({
+                                                                ...page,
+                                                                sections: page.sections.filter((section: any) => section.id !== item.id)
+                                                            }))
+                                                        }
+                                                    })
+
+                                                    queryClient.invalidateQueries({ queryKey: ["courses", "teacher", "my-courses", course_id] });
+                                                    queryClient.invalidateQueries({ queryKey: ["courses", "teacher", "my-courses"], exact: false });
+
+                                                }
+
+                                                catch (err) {
+                                                    console.log(err);
+                                                    queryClient.setQueryData(["courses", course_id, "sections"], snapshot);
+                                                }
+                                            }}
                                             onEdit={() => { }}
                                             onPress={() =>
                                                 router.push(`./section-details?course_id=${course_id}&section_id=${item.id}`)
@@ -151,6 +188,23 @@ export default function Sections() {
                                 />
                             )
                 }
+
+                <TouchableOpacity
+                    onPress={() => {
+                        router.push(`./create-section?course_id=${course_id}`)
+                    }}
+                    activeOpacity={0.85}
+                    className="absolute bottom-6 right-5 z-20 bg-blue-500 px-6 py-4 rounded-full flex-row items-center gap-3 shadow-xl"
+                >
+                    {/* Icon Container */}
+                    <View className="w-9 h-9 rounded-full bg-white/20 items-center justify-center">
+                        <Feather name="plus" size={18} color={Colors.white} />
+                    </View>
+
+                    <Text className="text-white text-base font-semibold tracking-wide">
+                        Add Section
+                    </Text>
+                </TouchableOpacity>
 
             </SafeAreaView>
         </LinearGradient>

@@ -11,53 +11,6 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 
 
-const courses = [
-    {
-        "id": "287d5bf0-3a0e-40ce-a9f8-4e31703af06f",
-        "name": "Relational Database",
-        "code": "RDB",
-        "description": "An introduction to relational databases covering data modeling, SQL querying, schema design, and normalization. Students gain hands-on experience with RDBMS tools and learn to manage structured data efficiently in real-world applications.",
-        "status": "REJECTED",
-        "field_id": 117,
-        "faculty_id": 25,
-        "module_id": 3,
-        "publisher_id": 2,
-        "updated_at": "2026-05-01T14:13:41.857Z",
-        "created_at": "2026-04-15T09:30:51.004Z",
-        "studentProfileId": null,
-        "module": {
-            "name": "Data Bases",
-            "id": 3,
-            "code": "SGDB",
-            "levels": [
-                {
-                    "name": "L2",
-                    "id": 2
-                },
-                {
-                    "name": "Engineering Year 1",
-                    "id": 56
-                }
-            ]
-        },
-        "field": {
-            "name": "Computer Science",
-            "id": 117
-        },
-        "faculty": {
-            "name": "Faculty of Exact Sciences",
-            "id": 25,
-            "university": {
-                "name": "University of Oran 1"
-            }
-        },
-        "_count": {
-            "courseEnrollments": 2,
-            "courseSections": 1
-        }
-    }
-]
-
 export default function Courses() {
 
     const [filters, setFilters] = useState<{ name?: string, status?: string }>({ status: undefined, name: undefined });
@@ -70,16 +23,23 @@ export default function Courses() {
         className="flex-1"
     >
         <SafeAreaView className="flex-1 px-6">
+
             <TouchableOpacity
-                className="absolute bottom-6 z-20 right-2 bg-blue-500 rounded-full px-6 py-3 items-center justify-center flex-row gap-2"
                 onPress={() => {
                     router.push("./create-course")
+
                 }}
+                activeOpacity={0.85}
+                className="absolute bottom-6 right-5 z-20 bg-blue-500 px-6 py-4 rounded-full flex-row items-center gap-3 shadow-xl"
             >
+                {/* Icon Container */}
+                <View className="w-9 h-9 rounded-full bg-white/20 items-center justify-center">
+                    <Feather name="plus" size={18} color={Colors.white} />
+                </View>
 
-                <Feather name="plus" color={"#FFF"} size={22} />
-                <Text className="text-lg font-bold text-white">New Course</Text>
-
+                <Text className="text-white text-base font-semibold tracking-wide">
+                    Create Course
+                </Text>
             </TouchableOpacity>
             <Text className="text-2xl font-bold mt-6 mb-4">Published Courses</Text>
 

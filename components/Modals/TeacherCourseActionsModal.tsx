@@ -8,6 +8,7 @@ type Props = {
     is_deleteing?: boolean
     onEdit?: () => void;
     onDelete?: () => void;
+    onShowStudentsList?:()=>void
 };
 
 export default function TeacherCourseActionsModal({
@@ -16,6 +17,7 @@ export default function TeacherCourseActionsModal({
     setVisible,
     onEdit,
     onDelete,
+    onShowStudentsList
 }: Props) {
     return (
         <Modal visible={visible} transparent animationType="slide">
@@ -65,7 +67,7 @@ export default function TeacherCourseActionsModal({
                     {/* Show Student List */}
                     <TouchableOpacity
                         activeOpacity={0.85}
-                        onPress={() => { }}
+                        onPress={onShowStudentsList}
                         className="flex-row items-center gap-4 bg-orange-50 border border-orange-100 rounded-2xl p-4 mb-4"
                     >
                         <View className="w-10 h-10 rounded-full bg-orange-100 items-center justify-center">

@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 
 export default function useModules(params: { field_id?: number, level_id?: string, code?: string, name?: string }) {
     return useQuery({
-        queryKey: ["modules"],
+        queryKey: ["modules", JSON.stringify(params)],
         queryFn: () => getModules(params)
     });
 }

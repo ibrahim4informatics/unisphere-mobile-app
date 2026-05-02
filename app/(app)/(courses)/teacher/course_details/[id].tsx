@@ -1,59 +1,24 @@
 import TeacherCourseActionsModal from "@/components/Modals/TeacherCourseActionsModal";
 import Colors from "@/constants/Colors";
+import useDeleteCourse from "@/hooks/api/mutations/useDeleteOwnCourse";
 import useTeacherPublishedCourseDetails from "@/hooks/api/queries/useTeacherPublishedCourseDetails";
 import { Feather } from "@expo/vector-icons";
+import { useQueryClient } from "@tanstack/react-query";
 import { LinearGradient } from "expo-linear-gradient";
 import { router, useLocalSearchParams } from "expo-router";
 import { useState } from "react";
 import { ActivityIndicator, ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-{/* Dummy Course */ }
-const course = {
-    id: "287d5bf0-3a0e-40ce-a9f8-4e31703af06f",
-    name: "Relational Database",
-    code: "RDB",
-    description:
-        "An introduction to relational databases covering data modeling, SQL querying, schema design, and normalization. Students gain hands-on experience with RDBMS tools and learn to manage structured data efficiently in real-world applications.",
-    status: "REJECTED",
-    created_at: "2026-04-15T09:30:51.004Z",
-    updated_at: "2026-05-01T14:13:41.857Z",
-    faculty: {
-        name: "Faculty of Exact Sciences",
-        university: {
-            name: "University of Oran 1",
-        },
-    },
-    module: {
-        name: "Data Bases",
-        code: "SGDB",
-        levels: [
-            { id: 2, name: "L2" },
-            { id: 56, name: "Engineering Year 1" },
-        ],
-    },
-    field: {
-        name: "Computer Science",
-    },
-    courseSections: [
-        {
-            id: 2,
-            title: "Sql Introduction",
-            order: 2,
-        },
-    ],
-    _count: {
-        courseEnrollments: 2,
-        courseSections: 1,
-    },
-};
 
 export default function CoursesDetails() {
+    const queryClient = useQueryClient();
 
     const { id }: { id: string } = useLocalSearchParams();
     const [showModal, setShowModal] = useState<boolean>(false);
 
-    const { data, isPending, error } = useTeacherPublishedCourseDetails(id)
+    const { data, isPending, error } = useTeacherPublishedCourseDetails(id);
+    const { mutateAsync: deleteCourse, isPending: deleting_course } = useDeleteCourse();
 
 
     const badgeStyles = (status: string) => {
@@ -290,7 +255,32 @@ export default function CoursesDetails() {
                     </>)
             }
 
-            <TeacherCourseActionsModal visible={showModal} setVisible={setShowModal} />
+            <TeacherCourseActionsModal
+                is_deleteing={deleting_course}
+                onDelete={async () => {
+
+                    try {
+                        const res = await deleteCourse(data.course.id);
+                        console.log(res)
+                        setShowModal(false);
+                        queryClient.invalidateQueries({ queryKey: ["courses", "teacher", "my-courses"], exact: false });
+                        router.back();
+                    }
+                    catch (err) {
+                        console.log(err)
+                        setShowModal(false);
+
+                    }
+                }}
+
+                onShowStudentsList={() => {
+                    router.push(`./enrolled-students?course_id=${id}`);
+                
+                    setShowModal(false)
+                }}
+                visible={showModal}
+                setVisible={setShowModal}
+            />
         </SafeAreaView>
     </LinearGradient>
 }
