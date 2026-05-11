@@ -45,6 +45,7 @@ export default function TeacherCourseActionsModal({
                     {/* Edit Button */}
                     <TouchableOpacity
                         activeOpacity={0.85}
+                        
                         onPress={onEdit}
                         className="flex-row items-center gap-4 bg-blue-50 border border-blue-100 rounded-2xl p-4 mb-4"
                     >

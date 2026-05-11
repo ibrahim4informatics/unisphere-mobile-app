@@ -272,10 +272,13 @@ export default function CoursesDetails() {
 
                     }
                 }}
-
+                onEdit={() => {
+                    router.push(`./update-course?course_id=${id}`)
+                    setShowModal(false)
+                }}
                 onShowStudentsList={() => {
                     router.push(`./enrolled-students?course_id=${id}`);
-                
+
                     setShowModal(false)
                 }}
                 visible={showModal}

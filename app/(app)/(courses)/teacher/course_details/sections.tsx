@@ -134,6 +134,7 @@ export default function Sections() {
                                             section={item}
                                             deleting={deletingSection}
 
+
                                             onDelete={async () => {
 
                                                 const snapshot = queryClient.getQueryData(["courses", course_id, "sections"]);
@@ -162,7 +163,7 @@ export default function Sections() {
                                                     queryClient.setQueryData(["courses", course_id, "sections"], snapshot);
                                                 }
                                             }}
-                                            onEdit={() => { }}
+                                            onEdit={() => { router.push(`./update-section?course_id=${course_id}&section_id=${item.id}`) }}
                                             onPress={() =>
                                                 router.push(`./section-details?course_id=${course_id}&section_id=${item.id}`)
                                             }
