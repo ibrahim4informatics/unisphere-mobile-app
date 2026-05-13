@@ -1,3 +1,4 @@
+import useApiHealth from "@/hooks/api/queries/useApiHealth";
 import useCurrentProfile from "@/hooks/api/queries/useCurrentProfile";
 import { useAppDispatch } from "@/hooks/useAppDispatch";
 import { setUser } from "@/store/slices/authSlice";
@@ -18,31 +19,34 @@ export default function Index() {
   }
 
   const { data: response, isPending, error, isError } = useCurrentProfile();
+  const { data: apiStatus, error: apiError, isPending: checkingApi, isError: apiFails } = useApiHealth();
 
-  useEffect(() => {
-    if (!navigationState?.key) return;
-    if (isPending) return;
+useEffect(() => {
+  if (!navigationState?.key) return;
+  if (isPending && checkingApi) return;
 
-    if (isError) {
+  // ONLY treat as network error if BOTH failed
+  if (apiFails && isError) {
+    router.replace("/(global)/network-error");
+    return;
+  }
 
-      if (error.code === "ERR_NETWORK") {
-        router.replace("/(global)/network-error")
-      }
-
-      else {
-        clearToken();
-        router.replace("/(auth)/login-screen")
-      }
-      return;
-    }
-    if (response?.data?.profile) {
-      dispatch(setUser(response.data.profile));
-      router.replace("/(app)/(home)");
-    } else {
+  if (isError) {
+    if (error?.response) {
+      clearToken();
       router.replace("/(auth)/login-screen");
     }
-  }, [isPending, error]);
+    return;
+  }
 
+  if (response?.data?.profile) {
+    dispatch(setUser(response.data.profile));
+    router.replace("/(app)/(home)");
+  } else {
+    router.replace("/(auth)/login-screen");
+  }
+
+}, [isPending, checkingApi, isError, apiFails]);
   return (
     <LinearGradient
       colors={["#f8fbff", "#eef4ff"]}

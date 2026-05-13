@@ -13,6 +13,11 @@
       "bundleIdentifier": "com.anonymous.unispheremobileapp"
     },
     "android": {
+      "permissions": [
+        "INTERNET",
+        "READ_MEDIA_IMAGES",
+        "READ_MEDIA_VIDEO"
+      ],
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
@@ -42,11 +47,19 @@
           }
         }
       ],
-      "expo-secure-store"
+      "expo-secure-store",
+      "expo-web-browser"
     ],
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "6bf2c7ab-ee90-442f-9ae3-688e11296fc0"
+      }
+    },
+    "owner": "ibdev"
   }
 }
