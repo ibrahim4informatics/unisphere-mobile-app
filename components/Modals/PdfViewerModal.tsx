@@ -13,7 +13,7 @@ import { SafeAreaView } from "react-native-safe-area-context"
 
 type Props = {
     visible: boolean
-    setVisible: (v: boolean) => void
+    setVisible: React.Dispatch<React.SetStateAction<string>>
     url: string
 }
 
@@ -63,7 +63,7 @@ export default function PdfPreviewModal({
             {/* Overlay */}
             <TouchableOpacity
                 activeOpacity={1}
-                onPress={() => setVisible(false)}
+                onPress={() => setVisible("")}
                 className="flex-1 bg-black/40 justify-end"
             >
 
@@ -83,7 +83,7 @@ export default function PdfPreviewModal({
                             </Text>
 
                             <TouchableOpacity
-                                onPress={() => setVisible(false)}
+                                onPress={() => setVisible("")}
                                 className="h-10 w-10 rounded-full items-center justify-center bg-gray-100"
                             >
                                 <Feather name="x" size={22} color="black" />
