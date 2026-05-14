@@ -1,3 +1,4 @@
+import PdfPreviewModal from "@/components/Modals/PdfViewerModal";
 import FileCard from "@/components/ui/FileCard";
 import Colors from "@/constants/Colors";
 import useSectionDetails from "@/hooks/api/queries/useSectionDetails";
@@ -5,6 +6,7 @@ import { Feather } from "@expo/vector-icons";
 import { useQueryClient } from "@tanstack/react-query";
 import { LinearGradient } from "expo-linear-gradient";
 import { router, useLocalSearchParams } from "expo-router";
+import { useState } from "react";
 import { ActivityIndicator, ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -19,11 +21,19 @@ export default function SectionDetails() {
 
     const { data, isPending, error } = useSectionDetails(course_id, section_id);
 
+    const [currentViewPdf, setCurrentViewPdf] = useState("");
+
     return (
         <LinearGradient
             colors={["#f8fbff", "#eef4ff"]}
             className="flex-1"
         >
+
+            <PdfPreviewModal
+                visible={currentViewPdf ? true : false}
+                setVisible={setCurrentViewPdf}
+                url={currentViewPdf}
+            />
             <SafeAreaView className="flex-1 px-6">
 
                 <View className="flex-row items-center gap-2">
@@ -69,14 +79,20 @@ export default function SectionDetails() {
                                         </View>
 
                                         {data.section.materials.map((file: any) => (
+
                                             <FileCard
                                                 key={file.id}
                                                 file={file}
-                                                onView={() => { }}
+                                                onView={() => {
+
+                                                    setCurrentViewPdf(file.link)
+                                                 }}
                                                 onDownload={() => {
-                                                    console.log("Download pressed")
+                                                    console.log(`Download File with url ${file.link}`)
                                                 }}
                                             />
+
+
                                         ))}
                                     </View>
                                 )}

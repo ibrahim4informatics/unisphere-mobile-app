@@ -5,7 +5,7 @@ let socket: Socket | null = null;
 export const connectSocket = (token: string) => {
     console.log("Connecting with token:", token);
 
-    socket = io(process.env.EXPO_PUBLIC_API_URL, {
+    socket = io("https://unispher-api.onrender.com", {
         auth: { token },
         transports: ["websocket"], // important for RN
         autoConnect: true,
