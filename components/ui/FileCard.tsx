@@ -83,7 +83,7 @@ export default function FileCard({ file, onView, onDownload }: FileCardProps) {
                         isDownloading ? (<>
 
                             <ActivityIndicator size={"small"} color={Colors.blue[500]} />
-                            <Text className="text-blue-500 ml-2">{progress * 100} %</Text>
+                            <Text className="text-blue-500 ml-2">{Math.floor(progress * 100)} %</Text>
                         </>) : (
                             <>
                                 <Feather name="download" size={18} color="#3B82F6" />

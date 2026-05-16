@@ -16,7 +16,7 @@ export default function Courses() {
     const [filters, setFilters] = useState<{ name?: string, status?: string }>({ status: undefined, name: undefined });
 
     const { data, isPending, error,
-        hasNextPage, isFetchingNextPage, fetchNextPage
+        hasNextPage, isFetchingNextPage, fetchNextPage, isRefetching, refetch
     } = useTeacherPublishedCourses(filters);
     return <LinearGradient
         colors={["#f8fbff", "#eef4ff"]}
@@ -95,6 +95,11 @@ export default function Courses() {
                     : error ? <Text className="mt-3 text-red-600 text-base">Network error,can not get published courses!</Text>
                         : <FlatList
                             data={data.pages.flatMap(page => page.courses)}
+
+                            refreshing={isRefetching}
+                            onRefresh={() => {
+                                refetch()
+                            }}
 
                             keyExtractor={(item) => item.id}
                             renderItem={({ item }) => (

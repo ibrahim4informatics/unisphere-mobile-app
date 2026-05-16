@@ -9,35 +9,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useState } from "react";
 import { ActivityIndicator, FlatList, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
-// import { conversations } from "@/dummyMessages";
 
-// dummyMessages.ts
-// export const conversations = [
-//     {
-//         id: "1",
-//         user: {
-//             id: "u1",
-//             first_name: "Ahmed",
-//             last_name: "Benali",
-//             avatar_url: "https://res.cloudinary.com/djn33vea9/image/upload/v1774302431/users/56949d61-5a38-4376-8bf6-df5dffa0affc/profile_pictures/i0gvbii2xb0npdq8nnyv.jpg",
-//         },
-//         lastMessage: "Hey bro, are we meeting today?",
-//         time: "2m",
-//         unread: 12,
-//     },
-//     {
-//         id: "2",
-//         user: {
-//             id: "u2",
-//             first_name: "Sara",
-//             last_name: "Khaled",
-//             avatar_url: null,
-//         },
-//         lastMessage: "Sent the files 👍",
-//         time: "1h",
-//         unread: 0,
-//     },
-// ]
 export default function ConversationsScreen() {
     const [makeConversationShown, setMakeConversationShown] = useState(false);
     const insets = useSafeAreaInsets();
@@ -45,6 +17,8 @@ export default function ConversationsScreen() {
         data,
         isPending,
         hasNextPage,
+        isRefetching,
+        refetch,
         fetchNextPage,
         isFetchingNextPage
     } = useUserChats();
@@ -86,6 +60,10 @@ export default function ConversationsScreen() {
                 </View>
 
                 <FlatList
+
+                    refreshing={isRefetching}
+                    onRefresh={()=>{ refetch() }}
+
                     data={data.pages.flatMap(page => page.chats)}
                     keyExtractor={(item) => item.id}
                     renderItem={({ item }) => <ConversationItem item={item} />}

@@ -115,7 +115,7 @@ export default function Courses() {
     const [search, setSearch] = useState("");
 
     const { isPending: coursesLoading, data: courses, error: coursesError,
-        hasNextPage: hasMoreCourses, fetchNextPage: getMoreCourses, isFetchingNextPage: moreCoursesLoading
+        hasNextPage: hasMoreCourses, fetchNextPage: getMoreCourses, isFetchingNextPage: moreCoursesLoading, isRefetching , refetch
     } = useCourses(search);
 
 
@@ -143,6 +143,11 @@ export default function Courses() {
                     ) : (
 
                         <FlatList
+
+                            refreshing={isRefetching}
+                            onRefresh={() => {
+                                refetch()
+                            }}
                             contentContainerClassName="pb-12"
                             data={courses?.pages.flatMap(page => page.courses)}
                             keyExtractor={(item) => item.id}

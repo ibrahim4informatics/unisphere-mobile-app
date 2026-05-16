@@ -64,7 +64,7 @@ export default function CreateCourseForm() {
 
 
     const { data: teacherData, isPending: loadingTeacherData } = useAcademicTeacherProfile("TEACHER");
-    const { data: facultiesResponse, error: facultiesError, isLoading: isFacultiesLoading } = useFaculties({ university_id: teacherData?.profile.university_id || undefined })
+    const { data: facultiesResponse, error: facultiesError, isLoading: isFacultiesLoading } = useFaculties({ university_id: teacherData?.profile.univeristy_id || undefined })
     const { data: departmentsResponse, error: departmentsError, isLoading: isDepartmentsLoading } = useDepartments({ faculty_id: watch("faculty_id") || undefined })
     const { data: fieldsResponse, isLoading: isFieldsLoading, error: fieldsError } = useFields({ department_id: department || undefined })
     const { data: modulesResponse, isLoading: isModulesLoading, error: modulesError } = useModules({ field_id: watch("field_id") });
@@ -75,7 +75,7 @@ export default function CreateCourseForm() {
         try {
             const responseData = await createCourse({
                 name: data.name, code: data.code, description: data.description,
-                faculty_id: data.faculty_id, field_id: data.field_id, module_id: data.module_id, status:data.status
+                faculty_id: data.faculty_id, field_id: data.field_id, module_id: data.module_id, status: data.status
             });
             router.push(`./course_details/${responseData.course.id}`);
             reset();

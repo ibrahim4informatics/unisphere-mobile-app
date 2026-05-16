@@ -161,6 +161,7 @@ export default function ChatScreen() {
           )}
           inverted
           className="py-4 px-2 bg-gray-100"
+          contentContainerClassName="pb-6"
 
         />
 

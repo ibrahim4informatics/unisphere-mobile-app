@@ -258,19 +258,6 @@ const UserConnectionsTab = () => {
                         {item.role === "STUDENT" && <Text className="text-green-500 font-bold">Student</Text>}
 
                     </View>
-
-                    <TouchableOpacity
-
-
-                        className="flex-row mr-2 w-12 h-12 rounded-full bg-white border border-gray-100 elevation-sm items-center justify-center gap-2"
-                        onPress={async () => { console.log(item.id) }}
-                    >
-
-                        <Feather name="message-circle" color={Colors.blue[500]} size={24} />
-
-                    </TouchableOpacity>
-
-
                     <TouchableOpacity
 
 
